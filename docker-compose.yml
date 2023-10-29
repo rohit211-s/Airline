@@ -1,27 +1,30 @@
 version: "3.9"
 services:
   react:
-    volumes:
-      - frontend-content:/app/frontend/build/
     container_name: airline_analysis_frontend
     build:
       context: ./frontend
+    volumes:
+      - ./frontend:/app/frontend
+      - /app/frontend/node_modules
     ports:
-      - ${AIRLINE_ANALYSIS_FRONTEND_PORT}:3000
+      - 3000:3000
+      - 5173:5173
 
   node:
-    volumes:
-      - frontend-content:/app/backend/src/build
-
     container_name: airline_analysis_backend
     build:
       context: ./backend
+    volumes:
+      - ./backend:/app/backend
+      - /app/backend/node_modules
     ports:
       - ${AIRLINE_ANALYSIS_BACKEND_PORT}:4201
     depends_on:
       - react
     environment:
       AIRLINE_ANALYSIS_BACKEND_PORT: 4201
+      AIRLINE_ANALYSIS_DATABASE_URL: ""
 
   nginx:
     depends_on:
