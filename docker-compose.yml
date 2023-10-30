@@ -21,9 +21,12 @@ services:
       - ${AIRLINE_ANALYSIS_BACKEND_PORT}:4201
     depends_on:
       - react
+    env_file: .env
     environment:
       AIRLINE_ANALYSIS_BACKEND_PORT: 4201
-      AIRLINE_ANALYSIS_DATABASE_URL: ""
+      AIRLINE_ANALYSIS_DATABASE_CONNECTION_STRING: "${AIRLINE_ANALYSIS_DATABASE_HOSTNAME}:${AIRLINE_ANALYSIS_DATABASE_PORT}/${AIRLINE_ANALYSIS_DATABASE_SERVICE_NAME}"
+    extra_hosts:
+      - "oracle.cise.ufl.edu:10.242.98.82"
 
   nginx:
     depends_on:
