@@ -1,26 +1,35 @@
 // Third Party Packages
 const express = require("express");
 const cors = require("cors");
+const oracledb = require("oracledb");
 
 // Global Setup
 require("dotenv").config();
 
 // Setup
 const app = express();
-const { getDb } = require("./db/db");
 
 app.use(cors());
 app.use(express.json());
 
 // Database connection
+const getConnection = async () => {
+  const connConfig = {
+    user: process.env.AIRLINE_ANALYSIS_DATABASE_USERNAME,
+    password: process.env.AIRLINE_ANALYSIS_DATABASE_PASSWORD,
+    connectionString: process.env.AIRLINE_ANALYSIS_DATABASE_CONNECTION_STRING,
+    poolMin: 2,
+    poolMax: 10,
+  };
+  const dbConnection = await oracledb.getConnection(connConfig);
+
+  return dbConnection;
+};
 
 app.get("/api", async (req, res) => {
-  console.log("Entered api");
-  const dbConnection = await getDb();
-  console.log("DB Setup Done");
+  const dbConnection = await getConnection();
   const result = await dbConnection.execute("SELECT * FROM lectures");
-  console.log(result);
-  res.status(200).send({ msg: "Hello Sharan Reddy" });
+  res.status(200).send({ result: result });
 });
 
 module.exports = app;
