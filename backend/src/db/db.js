@@ -1,27 +1,34 @@
+const assert = require("assert");
 const oracledb = require("oracledb");
+let _db;
 
-async function connectToOracle() {
-  try {
-    const connConfig = {
-      user: process.env.AIRLINE_ANALYSIS_DATABASE_USERNAME,
-      password: process.env.AIRLINE_ANALYSIS_DATABASE_PASSWORD,
-      connectionString: process.env.AIRLINE_ANALYSIS_DATABASE_CONNECTION_STRING,
-      poolMin: 2,
-      poolMax: 10,
-    };
+const connConfig = {
+  user: process.env.AIRLINE_ANALYSIS_DATABASE_USERNAME,
+  password: process.env.AIRLINE_ANALYSIS_DATABASE_PASSWORD,
+  connectionString: process.env.AIRLINE_ANALYSIS_DATABASE_CONNECTION_STRING,
+  poolMin: 2,
+  poolMax: 10,
+};
 
-    console.log(connConfig);
+console.log(connConfig);
 
-    const connection = await oracledb.getConnection(connConfig);
-    console.log(
-      "Result is: ",
-      await connection.execute("SELECT * from lectures")
-    );
-  } catch (err) {
-    console.error("Error connecting to Oracle Database:", err);
+async function initDb(callback) {
+  if (_db) {
+    console.log("Trying to init DB again!");
+    return callback(null, _db);
   }
+
+  _db = await oracledb.createPool(connConfig);
+  return callback(null, _db);
 }
 
-connectToOracle();
+async function getDb() {
+  assert.ok(_db, "Db has not been initialized. Please called init first.");
+  const conn = await _db.getConnection();
+  return conn;
+}
 
-module.exports = { getConnection: oracledb.getConnection };
+module.exports = {
+  getDb,
+  initDb,
+};
