@@ -13,7 +13,12 @@ app.use(cors());
 app.use(express.json());
 
 // Database connection
+let _db = null;
 const getConnection = async () => {
+  if (_db) {
+    return _db;
+  }
+
   const connConfig = {
     user: process.env.AIRLINE_ANALYSIS_DATABASE_USERNAME,
     password: process.env.AIRLINE_ANALYSIS_DATABASE_PASSWORD,
@@ -21,15 +26,16 @@ const getConnection = async () => {
     poolMin: 2,
     poolMax: 10,
   };
-  const dbConnection = await oracledb.getConnection(connConfig);
 
-  return dbConnection;
+  _db = await oracledb.getConnection(connConfig);
+  return _db;
 };
 
 app.get("/api", async (req, res) => {
   const dbConnection = await getConnection();
   const result = await dbConnection.execute("SELECT * FROM lectures");
-  res.status(200).send({ result: result });
+  const data = result.rows;
+  res.status(200).send({ result: data });
 });
 
 module.exports = app;
