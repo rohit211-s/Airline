@@ -61,7 +61,6 @@ const RawDataViewer = () => {
         Execute Query
       </Button>
 
-      {JSON.stringify(pageData)}
       <Paper>
         <h1 style={{ textAlign: "center", color: "green" }}>Data Preview</h1>
         <TableContainer component={Paper}>
