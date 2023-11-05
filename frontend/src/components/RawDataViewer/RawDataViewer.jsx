@@ -30,8 +30,6 @@ const RawDataViewer = () => {
   });
 
   const executeQuery = async (funcReqParams = { pageNum: 0, pageLimit: 0 }) => {
-    alert(JSON.stringify(funcReqParams));
-
     const resp = await axios.post(
       constants.BACKEND_URL + constants.RAW_QUERY_PATH,
       {
