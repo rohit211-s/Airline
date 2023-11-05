@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import constants from "../config/config";
+import constants from "../../config/config";
 import axios from "axios";
 
 const Dashboard = () => {
