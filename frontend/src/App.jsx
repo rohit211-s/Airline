@@ -1,8 +1,12 @@
 import "./App.css";
-import Dashboard from "./components/Dashboard";
+import RouterSetup from "./RouterSetup";
 
-function App() {
-  return <Dashboard />;
-}
+const App = () => {
+  return (
+    <div className="">
+      <RouterSetup />
+    </div>
+  );
+};
 
 export default App;
