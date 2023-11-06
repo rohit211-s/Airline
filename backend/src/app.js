@@ -33,7 +33,7 @@ const getConnection = async () => {
 
 app.get("/api", async (req, res) => {
   const dbConnection = await getConnection();
-  const result = await dbConnection.execute("SELECT * FROM lectures");
+  const result = await dbConnection.execute(`SELECT * FROM kondas.states`);
   const data = result.rows;
   res.status(200).send({ result: data });
 });
