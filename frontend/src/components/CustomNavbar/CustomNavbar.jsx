@@ -1,10 +1,10 @@
+import AdbIcon from "@mui/icons-material/Adb";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Container from "@mui/material/Container";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import Container from "@mui/material/Container";
-import Button from "@mui/material/Button";
-import AdbIcon from "@mui/icons-material/Adb";
 
 const pages = [
   {
@@ -39,37 +39,60 @@ const pages = [
 
 function CustomNavbar() {
   return (
-    <AppBar position="static">
-      <Container maxWidth="xl">
-        <Toolbar disableGutters>
-          <AdbIcon sx={{ display: "flex", mr: 1 }} />
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            onClick={() => {
-              window.location.reload();
-            }}
+    <AppBar
+      position="static"
+      sx={{
+        boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
+        backgroundColor: "#000042",
+      }}
+    >
+      <Container maxWidth="false">
+        <Toolbar disableGutters sx={{ justifyContent: "space-between" }}>
+          <div style={{ display: "flex" }}>
+            <AdbIcon sx={{ display: "flex", mr: 1 }} />
+            <Typography
+              variant="h6"
+              noWrap
+              component="a"
+              onClick={() => {
+                window.location.reload();
+              }}
+              sx={{
+                mr: 2,
+                display: { xs: "none", md: "flex" },
+                fontWeight: 700,
+                color: "inherit",
+                textDecoration: "none",
+                cursor: "pointer",
+              }}
+            >
+              Airline Analysis
+            </Typography>
+          </div>
+          <Box
             sx={{
-              mr: 2,
+              flexGrow: 1,
+              alignSelf: "flex-end",
+              justifyContent: "space-evenly",
+              maxWidth: "60vw",
               display: { xs: "none", md: "flex" },
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "inherit",
-              textDecoration: "none",
-              cursor: "pointer",
             }}
           >
-            Airline Analysis
-          </Typography>
-
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
               <Button
                 key={page.link}
                 href={page.link}
-                sx={{ my: 2, color: "white", display: "block" }}
+                sx={{
+                  my: 2,
+                  color: "white",
+                  display: "block",
+                  textTransform: "capitalize",
+                  fontWeight: "bold",
+                  padding: "6px",
+                  ":hover": {
+                    backgroundColor: "#10898d",
+                  },
+                }}
               >
                 {page.label}
               </Button>

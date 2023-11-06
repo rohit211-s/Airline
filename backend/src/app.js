@@ -36,11 +36,7 @@ const getConnection = async () => {
 
 app.get("/api", async (req, res) => {
   const dbConnection = await getConnection();
-<<<<<<< HEAD
-  const result = await dbConnection.execute(`SELECT * FROM kondas.states`);
-=======
   const result = await dbConnection.execute("SELECT * FROM states");
->>>>>>> 88d84b02a55fd7b881162e53043e0e46d9ba0ffe
   const data = result.rows;
   res.status(200).send({ result: data });
 });

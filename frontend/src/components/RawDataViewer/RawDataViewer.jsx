@@ -6,13 +6,13 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
 } from "@mui/material";
-import { TablePagination } from "@mui/base/TablePagination";
 import axios from "axios";
+import { convert } from "html-to-text";
 import { useState } from "react";
 import constants from "../../config/config";
-import { convert } from "html-to-text";
 
 const RawDataViewer = () => {
   const [pageData, setPageData] = useState({
@@ -43,37 +43,69 @@ const RawDataViewer = () => {
   };
 
   return (
-    <div style={{ marginTop: "20px" }}>
-      <form>
-        <input id="sqleditor" type="hidden" name="content" />
-        <trix-editor input="sqleditor"></trix-editor>
-      </form>
-
-      <Button
-        onClick={() => {
-          executeQuery();
+    <div
+      style={{
+        marginTop: "20px",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <div
+        style={{
+          width: "70vw",
+          backgroundColor: "white",
+          padding: "2vh",
+          boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
+          borderRadius: "8px",
         }}
-        variant="contained"
-        sx={{ mt: 2, float: "right" }}
       >
-        Execute Query
-      </Button>
+        <form>
+          <input id="sqleditor" type="hidden" name="content" />
+          <trix-editor input="sqleditor"></trix-editor>
+        </form>
+        <Button
+          onClick={() => {
+            executeQuery();
+          }}
+          variant="contained"
+          sx={{
+            mt: 2,
+            width: "20%",
+            float: "right",
+            boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
+            backgroundColor: "#000042",
+          }}
+        >
+          Execute Query
+        </Button>
+      </div>
 
-      <Paper>
-        <h1 style={{ textAlign: "center", color: "green" }}>Data Preview</h1>
-        <TableContainer component={Paper}>
+      <h2
+        style={{
+          textAlign: "center",
+          maxWidth: "10vw",
+        }}
+      >
+        Data Preview
+      </h2>
+      <Paper elevation={3} sx={{ maxWidth: "90vw" }}>
+        <TableContainer>
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead>
-              <TableRow>
+              <TableRow sx={{ backgroundColor: "black" }}>
                 {pageData.columnNames.map((name) => (
-                  <TableCell key={name}>{name}</TableCell>
+                  <TableCell sx={{ color: "white" }} key={name}>
+                    {name}
+                  </TableCell>
                 ))}
               </TableRow>
             </TableHead>
             <TableBody>
               {pageData.response.map((row) => {
                 return (
-                  <TableRow key={JSON.stringify(row)}>
+                  <TableRow hover key={JSON.stringify(row)}>
                     {row.map((record) => {
                       return (
                         <TableCell key={JSON.stringify(record)}>
