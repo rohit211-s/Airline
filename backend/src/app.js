@@ -5,6 +5,7 @@ const oracledb = require("oracledb");
 
 // Custom packages
 const utils = require("./utils/utils");
+const trendQuery2 = require("./queries/trend_query_2/passenger_preferences");
 
 // Global Setup
 require("dotenv").config();
@@ -83,6 +84,21 @@ app.post("/raw_query", async (req, res) => {
     columnNames: resp.metaData.map((row) => row.name),
     response: utils.filterResponse(respData, pageNum, pageLimit),
   });
+});
+
+app.get("/trend_query_2", async (req, res) => {
+  let type = req.params;
+
+  const dbConnection = await getConnection();
+  const resp = await dbConnection.execute(trendQuery2);
+  const respData = resp.rows;
+
+  // res.status(200).send({
+  //   columnNames: resp.metaData.map((row)=> row.name),
+  //   data: resp.data.data
+  // })
+
+  res.status(200).send({ asdas: "asdsad" });
 });
 
 module.exports = app;
