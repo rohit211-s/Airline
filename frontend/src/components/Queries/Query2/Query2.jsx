@@ -54,7 +54,7 @@ const Query2 = () => {
     });
   };
 
-  const fetchData = async () => {
+  const fetchData = async (isFetchAll = true) => {
     const resp1 = await axios.get(
       `${constants.BACKEND_URL}${constants.TREND_QUERY_2_PATH}?timeline=${
         mainState.firstDropDown
@@ -63,16 +63,24 @@ const Query2 = () => {
       }&columns=${mainState.selectedColumns.join(",")}`
     );
 
-    const resp2 = await axios.get(
-      `${constants.BACKEND_URL}${constants.GET_FILTER_OPTIONS_PATH}?timeline=${mainState.firstDropDown}&group=${mainState.secondDropDown}`
-    );
+    if (isFetchAll) {
+      const resp2 = await axios.get(
+        `${constants.BACKEND_URL}${constants.GET_FILTER_OPTIONS_PATH}?timeline=${mainState.firstDropDown}&group=${mainState.secondDropDown}`
+      );
 
-    setMainState({
-      ...mainState,
-      columnNames: resp1.data.columnNames,
-      data: resp1.data.data,
-      filterOptions: resp2.data,
-    });
+      setMainState({
+        ...mainState,
+        columnNames: resp1.data.columnNames,
+        data: resp1.data.data,
+        filterOptions: resp2.data,
+      });
+    } else {
+      setMainState({
+        ...mainState,
+        columnNames: resp1.data.columnNames,
+        data: resp1.data.data,
+      });
+    }
   };
 
   // Constants
@@ -115,7 +123,15 @@ const Query2 = () => {
             value={mainState.firstDropDown}
             label="timeline"
             onChange={(e) => {
-              setMainState({ ...mainState, firstDropDown: e.target.value });
+              setMainState({
+                ...mainState,
+                data: [],
+                columnNames: [],
+                filterOptions: [],
+                selectedFilters: [],
+                selectedColumns: [],
+                firstDropDown: e.target.value,
+              });
             }}
           >
             <MenuItem value={"yearly"}>Yearly</MenuItem>
@@ -132,7 +148,15 @@ const Query2 = () => {
             value={mainState.secondDropDown}
             label="Group By"
             onChange={(e) => {
-              setMainState({ ...mainState, secondDropDown: e.target.value });
+              setMainState({
+                ...mainState,
+                data: [],
+                columnNames: [],
+                filterOptions: [],
+                selectedFilters: [],
+                selectedColumns: [],
+                secondDropDown: e.target.value,
+              });
             }}
           >
             <MenuItem value={"all"}>All</MenuItem>
@@ -233,7 +257,7 @@ const Query2 = () => {
             ":hover": { backgroundColor: "#000022", color: "white" },
           }}
           onClick={() => {
-            fetchData();
+            fetchData(false);
           }}
         >
           View Updated Graph
@@ -282,7 +306,7 @@ const Query2 = () => {
                     };
                   })
             }
-            height={300}
+            height={600}
             width={1800}
           ></LineChart>
         ) : null}
