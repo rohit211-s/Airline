@@ -6,6 +6,7 @@ const oracledb = require("oracledb");
 // Custom packages
 const utils = require("./utils/utils");
 const trendQuery2 = require("./queries/trend_query_2/passenger_preferences");
+const utilQueries = require("./queries/utils");
 
 // Global Setup
 require("dotenv").config();
@@ -87,18 +88,103 @@ app.post("/raw_query", async (req, res) => {
 });
 
 app.get("/trend_query_2", async (req, res) => {
-  let type = req.params;
-
+  const params = req.query;
   const dbConnection = await getConnection();
-  const resp = await dbConnection.execute(trendQuery2);
-  const respData = resp.rows;
 
-  // res.status(200).send({
-  //   columnNames: resp.metaData.map((row)=> row.name),
-  //   data: resp.data.data
-  // })
+  let groupByAttributes = [];
+  let selectColumns = [];
+  let orderByColumns = [];
 
-  res.status(200).send({ asdas: "asdsad" });
+  if (params.timeline == "yearly") {
+    groupByAttributes.push("year");
+    selectColumns.push("year");
+    orderByColumns.push("year");
+  }
+
+  if (params.timeline == "quarterly") {
+    groupByAttributes.push(["year", "quarter"]);
+    selectColumns.push("CONCAT(year, CONCAT(' - ', quarter)) quarter");
+    orderByColumns.push("quarter");
+  }
+
+  if (params.group == "cities") {
+    groupByAttributes.push(
+      "regexp_replace(airport, '(.+), (.+), (.+)', '\\2')"
+    );
+    selectColumns.push(
+      "regexp_replace(airport, '(.+), (.+), (.+)', '\\2') city"
+    );
+    orderByColumns.push("city");
+  }
+
+  if (params.group == "states") {
+    groupByAttributes.push(
+      "regexp_replace(airport, '(.+), (.+), (.+)', '\\3')"
+    );
+    selectColumns.push(
+      "regexp_replace(airport, '(.+), (.+), (.+)', '\\3') state"
+    );
+
+    orderByColumns.push("state");
+  }
+
+  if (params.group == "airports") {
+    groupByAttributes.push(
+      "regexp_replace(airport, '(.+), (.+), (.+)', '\\1')"
+    );
+    selectColumns.push(
+      "regexp_replace(airport, '(.+), (.+), (.+)', '\\1') airport"
+    );
+
+    orderByColumns.push("airport");
+  }
+
+  let columns = req.query.columns.split(",");
+  if (columns.length > 0 && columns[0] != "") {
+    let string = `ROUND((${columns
+      .map((column) => {
+        if (column === "total_satisfied") {
+          return "SUM(total_satisfied)";
+        } else {
+          return `SUM(sum_${column})`;
+        }
+      })
+      .join("+")})/(${columns.length}*SUM(total_count)), 2) value`;
+    selectColumns.push(string);
+  } else {
+    selectColumns.push("ROUND(SUM(total_satisfied)/SUM(total_count), 2) value");
+  }
+
+  const finalQuery =
+    trendQuery2 +
+    ` SELECT ${selectColumns.join(
+      ","
+    )} FROM airport_level_feedback_statistics GROUP BY ${groupByAttributes.join(
+      ","
+    )} ORDER BY ${orderByColumns.join(",")}`;
+
+  const resp = await dbConnection.execute(finalQuery);
+
+  res.status(200).send({
+    columnNames: resp.metaData.map((row) => row.name),
+    data: resp.rows,
+  });
+});
+
+app.get("/filter_options", async (req, res) => {
+  const queryParams = req.query;
+  const dbConnection = await getConnection();
+  let query = "";
+  if (queryParams.group === "all") {
+    query = utilQueries.all[queryParams.timeline];
+  } else {
+    query = utilQueries[queryParams.group];
+  }
+
+  const resp = await dbConnection.execute(query);
+  let respData = resp.rows;
+
+  res.status(200).send(respData.map((row) => [row[0], row[1]]));
 });
 
 module.exports = app;

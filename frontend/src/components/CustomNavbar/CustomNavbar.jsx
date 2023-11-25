@@ -16,7 +16,7 @@ const pages = [
     link: "/trendquery1",
   },
   {
-    label: "Trend Query 2",
+    label: "Passenger Preferences Trend",
     link: "/trendquery2",
   },
   {
