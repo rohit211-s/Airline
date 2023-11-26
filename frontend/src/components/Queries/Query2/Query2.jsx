@@ -19,11 +19,14 @@ const Query2 = () => {
   const [mainState, setMainState] = useState({
     columnNames: [],
     data: [],
+    popularAirlines: [],
     firstDropDown: "yearly",
     secondDropDown: "all",
-    filteredOptions: [],
+    filterOptions: [],
     selectedFilters: [],
     selectedColumns: [],
+    selectedAirlines: [],
+    airlinesList: [],
   });
 
   // Effects
@@ -40,6 +43,17 @@ const Query2 = () => {
     setMainState({
       ...mainState,
       selectedFilters: typeof value === "string" ? value.split(",") : value,
+    });
+  };
+
+  const handleChangeAirlines = (event) => {
+    const {
+      target: { value },
+    } = event;
+
+    setMainState({
+      ...mainState,
+      selectedAirlines: typeof value === "string" ? value.split(",") : value,
     });
   };
 
@@ -73,12 +87,20 @@ const Query2 = () => {
         columnNames: resp1.data.columnNames,
         data: resp1.data.data,
         filterOptions: resp2.data,
+        popularAirlines: resp1.data.popularAirlines,
+        airlinesList: [
+          ...new Set(resp1.data.popularAirlines.map((row) => row[1])),
+        ],
       });
     } else {
       setMainState({
         ...mainState,
         columnNames: resp1.data.columnNames,
         data: resp1.data.data,
+        popularAirlines: resp1.data.popularAirlines,
+        airlinesList: [
+          ...new Set(resp1.data.popularAirlines.map((row) => row[1])),
+        ],
       });
     }
   };
@@ -98,6 +120,7 @@ const Query2 = () => {
 
   const columns = [
     "total_satisfied",
+    "total_dissatisfied",
     "ease_of_online_booking",
     "gate_location",
     "food_and_drink",
@@ -130,6 +153,7 @@ const Query2 = () => {
                 filterOptions: [],
                 selectedFilters: [],
                 selectedColumns: [],
+                selectedAirlines: [],
                 firstDropDown: e.target.value,
               });
             }}
@@ -306,6 +330,86 @@ const Query2 = () => {
                     };
                   })
             }
+            height={600}
+            width={1800}
+          ></LineChart>
+        ) : null}
+      </Grid>
+      <Grid item xs={10}>
+        <FormControl fullWidth>
+          <InputLabel id="airline_filter">Airline Filter</InputLabel>
+          <Select
+            labelId="airline_filter"
+            id="airline_filter_options_select"
+            multiple
+            value={mainState.selectedAirlines}
+            onChange={handleChangeAirlines}
+            input={
+              <OutlinedInput id="select-multiple-chip" label="Airline Filter" />
+            }
+            renderValue={(selected) => (
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                {selected.map((value) => (
+                  <Chip key={value} label={value} />
+                ))}
+              </Box>
+            )}
+            MenuProps={MenuProps}
+          >
+            {mainState.airlinesList && mainState.airlinesList.length > 0
+              ? mainState.airlinesList.map((row) => (
+                  <MenuItem key={row} value={row}>
+                    {row}
+                  </MenuItem>
+                ))
+              : null}
+          </Select>
+        </FormControl>
+      </Grid>
+      <Grid item xs={2}>
+        <Button
+          variant="contained"
+          sx={{
+            width: "100%",
+            height: "100%",
+            backgroundColor: "#000042",
+            ":hover": { backgroundColor: "#000022", color: "white" },
+          }}
+          onClick={() => {
+            setMainState({ ...mainState, selectedAirlines: [] });
+          }}
+        >
+          Clear All
+        </Button>
+      </Grid>
+      <Grid item xs={12}>
+        {mainState.airlinesList &&
+        mainState.airlinesList.length > 0 &&
+        mainState.selectedAirlines &&
+        mainState.selectedAirlines.length > 0 &&
+        mainState.popularAirlines &&
+        mainState.popularAirlines.length > 0 ? (
+          <LineChart
+            xAxis={[
+              {
+                scaleType: "band",
+                data: [
+                  ...new Set(
+                    mainState.popularAirlines.map((filter) => filter[0])
+                  ),
+                ],
+              },
+            ]}
+            series={mainState.selectedAirlines.map((filter) => {
+              return {
+                data: mainState.popularAirlines
+                  .filter((row) => {
+                    return row[1] == filter;
+                  })
+                  .map((row) => row[2]),
+                label: filter,
+              };
+            })}
             height={600}
             width={1800}
           ></LineChart>

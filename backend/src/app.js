@@ -87,57 +87,14 @@ app.post("/raw_query", async (req, res) => {
   });
 });
 
+// Trend Query 2
+// ----------------------- BEGIN --------------------
 app.get("/trend_query_2", async (req, res) => {
   const params = req.query;
   const dbConnection = await getConnection();
 
-  let groupByAttributes = [];
-  let selectColumns = [];
-  let orderByColumns = [];
-
-  if (params.timeline == "yearly") {
-    groupByAttributes.push("year");
-    selectColumns.push("year");
-    orderByColumns.push("year");
-  }
-
-  if (params.timeline == "quarterly") {
-    groupByAttributes.push(["year", "quarter"]);
-    selectColumns.push("CONCAT(year, CONCAT(' - ', quarter)) quarter");
-    orderByColumns.push("quarter");
-  }
-
-  if (params.group == "cities") {
-    groupByAttributes.push(
-      "regexp_replace(airport, '(.+), (.+), (.+)', '\\2')"
-    );
-    selectColumns.push(
-      "regexp_replace(airport, '(.+), (.+), (.+)', '\\2') city"
-    );
-    orderByColumns.push("city");
-  }
-
-  if (params.group == "states") {
-    groupByAttributes.push(
-      "regexp_replace(airport, '(.+), (.+), (.+)', '\\3')"
-    );
-    selectColumns.push(
-      "regexp_replace(airport, '(.+), (.+), (.+)', '\\3') state"
-    );
-
-    orderByColumns.push("state");
-  }
-
-  if (params.group == "airports") {
-    groupByAttributes.push(
-      "regexp_replace(airport, '(.+), (.+), (.+)', '\\1')"
-    );
-    selectColumns.push(
-      "regexp_replace(airport, '(.+), (.+), (.+)', '\\1') airport"
-    );
-
-    orderByColumns.push("airport");
-  }
+  let { selectColumns, groupByAttributes, orderByColumns } =
+    utils.getQueryAttributes(params);
 
   let columns = req.query.columns.split(",");
   if (columns.length > 0 && columns[0] != "") {
@@ -145,6 +102,8 @@ app.get("/trend_query_2", async (req, res) => {
       .map((column) => {
         if (column === "total_satisfied") {
           return "SUM(total_satisfied)";
+        } else if (column == "total_dissatisfied") {
+          return "SUM(total_dissatisfied)";
         } else {
           return `SUM(sum_${column})`;
         }
@@ -165,9 +124,39 @@ app.get("/trend_query_2", async (req, res) => {
 
   const resp = await dbConnection.execute(finalQuery);
 
+  // Popular Airlines based on timeline and group by
+  let selectColumns2 = [];
+  let groupByColumns2 = [];
+  let orderByColumns2 = [];
+
+  if (params.timeline == "yearly") {
+    selectColumns2.push("year");
+    groupByColumns2.push("year");
+    orderByColumns2.push("year");
+  } else if (params.timeline == "quarterly") {
+    selectColumns2.push("CONCAT(year, CONCAT(' - ', quarter)) quarter");
+    groupByColumns2.push(["year", "quarter"]);
+    orderByColumns2.push("quarter");
+  }
+
+  selectColumns2.push(["airline", "COUNT(*)"]);
+  groupByColumns2.push("airline");
+  orderByColumns2.push("airline");
+
+  const popularAirlines =
+    trendQuery2 +
+    ` SELECT ${selectColumns2.join(
+      ","
+    )} FROM airport_level_feedback_statistics GROUP BY ${groupByColumns2.join(
+      ","
+    )} ORDER BY ${orderByColumns2.join(",")}`;
+
+  const resp2 = await dbConnection.execute(popularAirlines);
+
   res.status(200).send({
     columnNames: resp.metaData.map((row) => row.name),
     data: resp.rows,
+    popularAirlines: resp2.rows,
   });
 });
 
@@ -186,5 +175,8 @@ app.get("/filter_options", async (req, res) => {
 
   res.status(200).send(respData.map((row) => [row[0], row[1]]));
 });
+
+// Trend Query 2
+// ----------------------- END --------------------
 
 module.exports = app;
