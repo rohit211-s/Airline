@@ -27,12 +27,40 @@ const Query2 = () => {
     selectedColumns: [],
     selectedAirlines: [],
     airlinesList: [],
+    startDate: null,
+    endDate: null,
   });
+
+  const [dateRanges, setDateRanges] = useState([]);
 
   // Effects
   useEffect(() => {
+    console.log("Entered useEffect");
+    if (mainState.firstDropDown == "yearly") {
+      let newArray = [];
+      for (let i = 1993; i < 2024; i++) {
+        newArray.push(i);
+      }
+      setDateRanges(newArray);
+    } else if (mainState.firstDropDown == "quarterly") {
+      let newArray = [];
+      for (let i = 1993; i < 2024; i++) {
+        for (let j = 1; j <= 4; j++) {
+          newArray.push(i + " - " + j);
+        }
+      }
+      setDateRanges(newArray);
+    } else {
+      setDateRanges([]);
+    }
+
     fetchData();
-  }, [mainState.firstDropDown, mainState.secondDropDown]);
+  }, [
+    mainState.firstDropDown,
+    mainState.secondDropDown,
+    mainState.startDate,
+    mainState.endDate,
+  ]);
 
   // Handlers
   const handleChange = (event) => {
@@ -69,18 +97,25 @@ const Query2 = () => {
   };
 
   const fetchData = async (isFetchAll = true) => {
-    const resp1 = await axios.get(
-      `${constants.BACKEND_URL}${constants.TREND_QUERY_2_PATH}?timeline=${
-        mainState.firstDropDown
-      }&group=${
-        mainState.secondDropDown
-      }&columns=${mainState.selectedColumns.join(",")}`
-    );
+    let url = `${constants.BACKEND_URL}${
+      constants.TREND_QUERY_2_PATH
+    }?timeline=${mainState.firstDropDown}&group=${
+      mainState.secondDropDown
+    }&columns=${mainState.selectedColumns.join(",")}`;
+
+    if (mainState.startDate != null && mainState.endDate != null) {
+      url += `&startDate=${mainState.startDate}&endDate=${mainState.endDate}`;
+    }
+
+    const resp1 = await axios.get(url);
 
     if (isFetchAll) {
-      const resp2 = await axios.get(
-        `${constants.BACKEND_URL}${constants.GET_FILTER_OPTIONS_PATH}?timeline=${mainState.firstDropDown}&group=${mainState.secondDropDown}`
-      );
+      let url = `${constants.BACKEND_URL}${constants.GET_FILTER_OPTIONS_PATH}?timeline=${mainState.firstDropDown}&group=${mainState.secondDropDown}`;
+      if (mainState.startDate != null && mainState.endDate != null) {
+        url += `&startDate=${mainState.startDate}&endDate=${mainState.endDate}`;
+      }
+
+      const resp2 = await axios.get(url);
 
       setMainState({
         ...mainState,
@@ -104,8 +139,6 @@ const Query2 = () => {
       });
     }
   };
-
-  // Constants
 
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_TOP = 8;
@@ -287,6 +320,55 @@ const Query2 = () => {
           View Updated Graph
         </Button>
       </Grid>
+      {mainState.data.length > 0 ? (
+        <>
+          <Grid item xs={6}>
+            <FormControl fullWidth>
+              <InputLabel id="startdate">Start Date</InputLabel>
+              <Select
+                labelId="startdate"
+                id="startdate_select"
+                value={mainState.startDate}
+                label="Start Date"
+                onChange={(e) => {
+                  setMainState({ ...mainState, startDate: e.target.value });
+                }}
+              >
+                {dateRanges.map((row) => {
+                  return (
+                    <MenuItem key={row} value={row}>
+                      {row}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={6}>
+            <FormControl fullWidth>
+              <InputLabel id="enddate">End Date</InputLabel>
+              <Select
+                labelId="enddate"
+                id="enddate_select"
+                value={mainState.endDate}
+                label="End Date"
+                onChange={(e) => {
+                  setMainState({ ...mainState, endDate: e.target.value });
+                }}
+              >
+                {dateRanges.map((row) => {
+                  return (
+                    <MenuItem key={row} value={row}>
+                      {row}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>
+          </Grid>
+        </>
+      ) : null}
+
       <Grid item xs={12}>
         {(mainState.secondDropDown == "all" &&
           mainState.filterOptions &&

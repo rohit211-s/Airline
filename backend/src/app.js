@@ -93,6 +93,24 @@ app.get("/trend_query_2", async (req, res) => {
   const params = req.query;
   const dbConnection = await getConnection();
 
+  let startDate = params.startDate;
+  if (!startDate) {
+    if (params.timeline == "yearly") {
+      startDate = "1993";
+    } else {
+      startDate = "1993 - 1";
+    }
+  }
+
+  let endDate = params.endDate;
+  if (!endDate) {
+    if (params.timeline == "yearly") {
+      endDate = "2024";
+    } else {
+      endDate = "2024 - 4";
+    }
+  }
+
   let { selectColumns, groupByAttributes, orderByColumns } =
     utils.getQueryAttributes(params);
 
@@ -115,7 +133,9 @@ app.get("/trend_query_2", async (req, res) => {
   }
 
   const finalQuery =
-    trendQuery2 +
+    trendQuery2
+      .replace(/%startDate%/g, "" + startDate)
+      .replace(/%endDate%/g, "" + endDate) +
     ` SELECT ${selectColumns.join(
       ","
     )} FROM airport_level_feedback_statistics GROUP BY ${groupByAttributes.join(
@@ -144,7 +164,9 @@ app.get("/trend_query_2", async (req, res) => {
   orderByColumns2.push("airline");
 
   const popularAirlines =
-    trendQuery2 +
+    trendQuery2
+      .replace(/%startDate%/g, "" + startDate)
+      .replace(/%endDate%/g, "" + endDate) +
     ` SELECT ${selectColumns2.join(
       ","
     )} FROM airport_level_feedback_statistics GROUP BY ${groupByColumns2.join(
@@ -161,6 +183,25 @@ app.get("/trend_query_2", async (req, res) => {
 });
 
 app.get("/filter_options", async (req, res) => {
+  const params = req.query;
+  let startDate = params.startDate;
+  if (!startDate) {
+    if (params.timeline == "yearly") {
+      startDate = "1993";
+    } else {
+      startDate = "1993 - 1";
+    }
+  }
+
+  let endDate = params.endDate;
+  if (!endDate) {
+    if (params.timeline == "yearly") {
+      endDate = "2024";
+    } else {
+      endDate = "2024 - 4";
+    }
+  }
+
   const queryParams = req.query;
   const dbConnection = await getConnection();
   let query = "";
@@ -169,6 +210,10 @@ app.get("/filter_options", async (req, res) => {
   } else {
     query = utilQueries[queryParams.group];
   }
+
+  query = query
+    .replace(/%startDate%/g, "" + startDate)
+    .replace(/%endDate%/g, "" + endDate);
 
   const resp = await dbConnection.execute(query);
   let respData = resp.rows;
