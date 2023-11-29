@@ -55,12 +55,7 @@ const Query2 = () => {
     }
 
     fetchData();
-  }, [
-    mainState.firstDropDown,
-    mainState.secondDropDown,
-    mainState.startDate,
-    mainState.endDate,
-  ]);
+  }, [mainState.firstDropDown, mainState.secondDropDown]);
 
   // Handlers
   const handleChange = (event) => {
@@ -104,6 +99,10 @@ const Query2 = () => {
     }&columns=${mainState.selectedColumns.join(",")}`;
 
     if (mainState.startDate != null && mainState.endDate != null) {
+      if (mainState.startDate > mainState.endDate) {
+        return;
+      }
+
       url += `&startDate=${mainState.startDate}&endDate=${mainState.endDate}`;
     }
 
@@ -317,12 +316,12 @@ const Query2 = () => {
             fetchData(false);
           }}
         >
-          View Updated Graph
+          View Graph
         </Button>
       </Grid>
       {mainState.data.length > 0 ? (
         <>
-          <Grid item xs={6}>
+          <Grid item xs={5}>
             <FormControl fullWidth>
               <InputLabel id="startdate">Start Date</InputLabel>
               <Select
@@ -344,7 +343,7 @@ const Query2 = () => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={5}>
             <FormControl fullWidth>
               <InputLabel id="enddate">End Date</InputLabel>
               <Select
@@ -365,6 +364,22 @@ const Query2 = () => {
                 })}
               </Select>
             </FormControl>
+          </Grid>
+          <Grid item xs={2}>
+            <Button
+              variant="contained"
+              sx={{
+                width: "100%",
+                height: "100%",
+                backgroundColor: "#000042",
+                ":hover": { backgroundColor: "#000022", color: "white" },
+              }}
+              onClick={() => {
+                fetchData();
+              }}
+            >
+              View Graph
+            </Button>
           </Grid>
         </>
       ) : null}
