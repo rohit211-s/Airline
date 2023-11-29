@@ -55,7 +55,7 @@ function CustomNavbar() {
               noWrap
               component="a"
               onClick={() => {
-                window.location.reload();
+                window.location.href = "/";
               }}
               sx={{
                 mr: 2,
