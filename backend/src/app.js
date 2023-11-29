@@ -2,6 +2,9 @@
 const express = require("express");
 const cors = require("cors");
 
+// Global Setup
+require("dotenv").config();
+
 // Custom packages
 const utils = require("./utils/utils");
 
@@ -9,9 +12,6 @@ const utils = require("./utils/utils");
 const rawEditorRouter = require("./routes/raw_editor");
 const trendQuery2Router = require("./routes/trend_query2");
 const dashboardRouter = require("./routes/dashboard");
-
-// Global Setup
-require("dotenv").config();
 
 // Setup
 const app = express();

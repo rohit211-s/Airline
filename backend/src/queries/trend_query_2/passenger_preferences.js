@@ -95,7 +95,7 @@ const trendQuery2 = `WITH date_classifier AS (
     SELECT
         *
     FROM
-        airlines_trips
+        %%DB_USERNAME%%airlines_trips
     WHERE
         ( ( year > (
             SELECT
@@ -137,12 +137,12 @@ const trendQuery2 = `WITH date_classifier AS (
     SELECT
         *
     FROM
-        airlines
+        %%DB_USERNAME%%airlines
 ), custom_feedbacks AS (
     SELECT
         *
     FROM
-        feedbacks
+        %%DB_USERNAME%%feedbacks
 ), custom_feedback_metrics AS (
     (
         SELECT
@@ -211,7 +211,7 @@ const trendQuery2 = `WITH date_classifier AS (
         COUNT(*)           total_fares
     FROM
              custom_airlines_trips t1
-        INNER JOIN airport_distances t2 ON t1.airport_distances_id = t2.id
+        INNER JOIN %%DB_USERNAME%%airport_distances t2 ON t1.airport_distances_id = t2.id
     GROUP BY
         t1.year,
         t1.quarter,
@@ -227,7 +227,7 @@ const trendQuery2 = `WITH date_classifier AS (
         COUNT(*)           total_fares
     FROM
              custom_airlines_trips t1
-        INNER JOIN airport_distances t2 ON t1.airport_distances_id = t2.id
+        INNER JOIN %%DB_USERNAME%%airport_distances t2 ON t1.airport_distances_id = t2.id
     GROUP BY
         t1.year,
         t1.quarter,
@@ -295,9 +295,9 @@ const trendQuery2 = `WITH date_classifier AS (
         SUM(cleanliness)                sum_cleanliness
     FROM
              custom_airlines_trips t1
-        INNER JOIN airport_distances t2 ON t1.airport_distances_id = t2.id
-        INNER JOIN feedbacks         t3 ON t1.trip_id = t3.trip_id
-        INNER JOIN airlines          t4 ON t1.airline_id = t4.id
+        INNER JOIN %%DB_USERNAME%%airport_distances t2 ON t1.airport_distances_id = t2.id
+        INNER JOIN custom_feedbacks         t3 ON t1.trip_id = t3.trip_id
+        INNER JOIN custom_airlines          t4 ON t1.airline_id = t4.id
     GROUP BY
         t1.year,
         t1.quarter,

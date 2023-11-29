@@ -58,12 +58,17 @@ const getQueryAttributes = (params) => {
   return { selectColumns, orderByColumns, groupByAttributes };
 };
 
-const executeQuery = async (db, query) => {
+const executeQuery = async (db, query, queryReplacements = {}) => {
+  query = query.replace(
+    new RegExp(process.env.DB_USERNAME_SEARCH_PREFIX, "g"),
+    process.env.DB_USERNAME_REPLACE_PREFIX
+  );
+
   const queryHistory = fs
     .readFileSync("logs/queries.txt", "utf8")
     .split("%%__QUERY_DELIM__%%");
 
-  const resp = await db.execute(query);
+  const resp = await db.execute(query, queryReplacements);
 
   queryHistory.unshift(query);
   if (queryHistory.length > 15) {
