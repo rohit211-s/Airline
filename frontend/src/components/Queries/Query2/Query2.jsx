@@ -53,8 +53,6 @@ const Query2 = () => {
     } else {
       setDateRanges([]);
     }
-
-    fetchData();
   }, [mainState.firstDropDown, mainState.secondDropDown]);
 
   // Handlers
@@ -169,7 +167,7 @@ const Query2 = () => {
 
   return (
     <Grid container padding={2} spacing={2}>
-      <Grid item xs={6}>
+      <Grid item xs={5}>
         <FormControl fullWidth>
           <InputLabel id="timeline">Timeline</InputLabel>
           <Select
@@ -195,7 +193,7 @@ const Query2 = () => {
           </Select>
         </FormControl>
       </Grid>
-      <Grid item xs={6}>
+      <Grid item xs={5}>
         <FormControl fullWidth>
           <InputLabel id="groupby">Group By</InputLabel>
           <Select
@@ -221,6 +219,22 @@ const Query2 = () => {
             <MenuItem value={"airports"}>Airports</MenuItem>
           </Select>
         </FormControl>
+      </Grid>
+      <Grid item xs={2}>
+        <Button
+          variant="contained"
+          sx={{
+            width: "100%",
+            height: "100%",
+            backgroundColor: "#000042",
+            ":hover": { backgroundColor: "#000022", color: "white" },
+          }}
+          onClick={() => {
+            fetchData();
+          }}
+        >
+          View Graph
+        </Button>
       </Grid>
       <Grid item xs={10}>
         <FormControl fullWidth>
