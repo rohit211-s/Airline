@@ -6,12 +6,34 @@ const router = app.Router();
 const utils = require("../utils/utils");
 
 // Setup
+const oracledb = require("oracledb");
 const { getConnection } = require("../db/db");
 
 // Routes
 router.post("/raw_query", async (req, res) => {
   let query = req.body.query;
-  query = query.replace(/[;]+/g, "").toLowerCase();
+
+  if (query.toLowerCase().includes("with")) {
+    // oracledb.escap
+    query = query.replace(/[\n]+/g, " ");
+    console.log(query);
+    const dbConnection = await getConnection();
+    const resp = await utils.executeQuery(dbConnection, query);
+    const respData = resp.rows;
+
+    let totalPages = Math.ceil(respData.length / pageLimit);
+    res.status(201).send({
+      pageNum: 0,
+      pageLimit: 10,
+      totalPages: totalPages,
+      totalRows: respData.length,
+      columnNames: resp.metaData.map((row) => row.name),
+      response: utils.filterResponse(respData, pageNum, pageLimit),
+    });
+    return;
+  }
+
+  query = query.replace(/[;\n]+/g, "").toLowerCase();
   let pageNum = req.body.pageNum;
   let pageLimit = req.body.pageLimit;
 
@@ -45,9 +67,8 @@ router.post("/raw_query", async (req, res) => {
       if (pageLimit > 0) query += ` FETCH FIRST ${pageLimit} ROWS ONLY `;
     }
   }
-
   const dbConnection = await getConnection();
-  const resp = await dbConnection.execute(query);
+  const resp = await utils.executeQuery(dbConnection, query);
   const respData = resp.rows;
 
   let totalPages = Math.ceil(respData.length / pageLimit);

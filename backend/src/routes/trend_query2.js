@@ -65,7 +65,7 @@ router.get("/trend_query_2", async (req, res) => {
       ","
     )} ORDER BY ${orderByColumns.join(",")}`;
 
-  const resp = await dbConnection.execute(finalQuery);
+  const resp = await utils.executeQuery(dbConnection, finalQuery);
 
   // Popular Airlines based on timeline and group by
   let selectColumns2 = [];
@@ -96,7 +96,7 @@ router.get("/trend_query_2", async (req, res) => {
       ","
     )} ORDER BY ${orderByColumns2.join(",")}`;
 
-  const resp2 = await dbConnection.execute(popularAirlines);
+  const resp2 = await utils.executeQuery(dbConnection, popularAirlines);
 
   res.status(200).send({
     columnNames: resp.metaData.map((row) => row.name),
@@ -138,7 +138,7 @@ router.get("/filter_options", async (req, res) => {
     .replace(/%startDate%/g, "" + startDate)
     .replace(/%endDate%/g, "" + endDate);
 
-  const resp = await dbConnection.execute(query);
+  const resp = await utils.executeQuery(dbConnection, query);
   let respData = resp.rows;
 
   res.status(200).send(respData.map((row) => [row[0], row[1]]));
