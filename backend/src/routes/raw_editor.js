@@ -13,30 +13,7 @@ const { getConnection } = require("../db/db");
 router.post("/raw_query", async (req, res) => {
   let query = req.body.query;
 
-  if (query.toLowerCase().includes("with")) {
-    // oracledb.escap
-    query = query.replace(/[\n]+/g, " ");
-
-    const dbConnection = await getConnection();
-    const resp = await utils.executeQuery(dbConnection, query);
-    const respData = resp.rows;
-    let pageNum = 0;
-    let pageLimit = 10;
-
-    let totalPages = Math.ceil(respData.length / pageLimit);
-    res.status(201).send({
-      pageNum: pageNum,
-      pageLimit: pageLimit,
-      totalPages: totalPages,
-      totalRows: respData.length,
-      columnNames: resp.metaData.map((row) => row.name),
-      response: utils.filterResponse(respData, pageNum, pageLimit),
-    });
-    return;
-  }
-
   query = query.replace(/[;\n]+/g, " ").toLowerCase();
-  console.log(query);
   let pageNum = req.body.pageNum;
   let pageLimit = req.body.pageLimit;
 

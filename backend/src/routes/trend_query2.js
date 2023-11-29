@@ -61,7 +61,7 @@ router.get("/trend_query_2", async (req, res) => {
       .replace(/%endDate%/g, "" + endDate) +
     ` SELECT ${selectColumns.join(
       ","
-    )} FROM airport_level_feedback_statistics GROUP BY ${groupByAttributes.join(
+    )} FROM %%DB_USERNAME%%airport_level_feedback_statistics GROUP BY ${groupByAttributes.join(
       ","
     )} ORDER BY ${orderByColumns.join(",")}`;
 
@@ -92,7 +92,7 @@ router.get("/trend_query_2", async (req, res) => {
       .replace(/%endDate%/g, "" + endDate) +
     ` SELECT ${selectColumns2.join(
       ","
-    )} FROM airport_level_feedback_statistics GROUP BY ${groupByColumns2.join(
+    )} FROM %%DB_USERNAME%%airport_level_feedback_statistics GROUP BY ${groupByColumns2.join(
       ","
     )} ORDER BY ${orderByColumns2.join(",")}`;
 

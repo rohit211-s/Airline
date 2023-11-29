@@ -75,10 +75,10 @@ const executeQuery = async (db, query, queryReplacements = {}) => {
     queryHistory.pop();
   }
 
-  // fs.writeFileSync(
-  //   "logs/queries.txt",
-  //   queryHistory.join("%%__QUERY_DELIM__%%")
-  // );
+  fs.writeFileSync(
+    "logs/queries.txt",
+    queryHistory.join("%%__QUERY_DELIM__%%")
+  );
 
   return resp;
 };
