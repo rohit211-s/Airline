@@ -1,9 +1,10 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
-import PageTemplate from "./components/PageTemplate/PageTemplate";
 import Dashboard from "./components/Dashboard/Dashboard";
-import RawDataViewer from "./components/RawDataViewer/RawDataViewer";
+import PageTemplate from "./components/PageTemplate/PageTemplate";
 import Query2 from "./components/Queries/Query2/Query2";
+import Query4 from "./components/Queries/Query4/Query4";
+import RawDataViewer from "./components/RawDataViewer/RawDataViewer";
 
 const RouterSetup = () => {
   return (
@@ -30,6 +31,14 @@ const RouterSetup = () => {
           element={
             <PageTemplate>
               <Query2 />
+            </PageTemplate>
+          }
+        />
+        <Route
+          path="/trendquery4"
+          element={
+            <PageTemplate>
+              <Query4 />
             </PageTemplate>
           }
         />

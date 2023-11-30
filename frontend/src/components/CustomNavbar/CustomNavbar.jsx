@@ -74,7 +74,7 @@ function CustomNavbar() {
               flexGrow: 1,
               alignSelf: "flex-end",
               justifyContent: "space-evenly",
-              maxWidth: "60vw",
+              maxWidth: "70vw",
               display: { xs: "none", md: "flex" },
             }}
           >
