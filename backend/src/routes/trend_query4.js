@@ -19,16 +19,16 @@ router.get("/trend_query4/filter_data", async (req, res) => {
     seasons: [],
     years: [],
   };
-  let query = `select distinct holiday from ${process.env.AIRLINE_ANALYSIS_DATABASE_PREFIX_STRING}holidays`;
+  let query = `select distinct holiday from ${process.env.DB_USERNAME_REPLACE_PREFIX}holidays`;
   const holidayResp = await dbConnection.execute(query);
   responseData.holidays = holidayResp.rows;
-  query = `select distinct airport from ${process.env.AIRLINE_ANALYSIS_DATABASE_PREFIX_STRING}airports`;
+  query = `select distinct airport from ${process.env.DB_USERNAME_REPLACE_PREFIX}airports`;
   const airportResp = await dbConnection.execute(query);
   responseData.airports = airportResp.rows;
-  query = `select distinct state from ${process.env.AIRLINE_ANALYSIS_DATABASE_PREFIX_STRING}airports`;
+  query = `select distinct state from ${process.env.DB_USERNAME_REPLACE_PREFIX}airports`;
   const stateResp = await dbConnection.execute(query);
   responseData.states = stateResp.rows;
-  query = `select distinct type from ${process.env.AIRLINE_ANALYSIS_DATABASE_PREFIX_STRING}seasonal_breaks`;
+  query = `select distinct type from ${process.env.DB_USERNAME_REPLACE_PREFIX}seasonal_breaks`;
   const seasonResp = await dbConnection.execute(query);
   responseData.seasons = seasonResp.rows;
   query = `select distinct year from kondas.airlines_delay`;
