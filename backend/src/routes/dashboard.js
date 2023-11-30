@@ -12,7 +12,7 @@ const dashboardQueries = require("../queries/dashboard/dashboard");
 const { getConnection } = require("../db/db");
 
 const processTableInfo = (tableInfo) => {
-  const tableObj = { data: tableInfo, totalRows: 0 };
+  const tableObj = { rows: [] };
   for (let i = 0; i < tableInfo.length; i++) {
     tableObj["totalRows"] += tableInfo[i][1];
   }
