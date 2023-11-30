@@ -1,6 +1,5 @@
 const formatQuery = (props) => {
   let holiday = props.holiday;
-  console.log(holiday);
   let airport = props.airport;
   let state = props.state;
   let start_year = props.start_year;
@@ -71,7 +70,7 @@ const formatQuery = (props) => {
             a.airport as airport_name
         FROM ${process.env.DB_USERNAME_REPLACE_PREFIX}airlines_delay ad
         JOIN ${process.env.DB_USERNAME_REPLACE_PREFIX}airports a ON a.iata_code = ad.airport
-        WHERE a.iata_code = '${state}'
+        WHERE a.state = '${state}'
         )
     )
     

@@ -58,47 +58,55 @@ const Query4 = () => {
   };
 
   const handleSubmit = async () => {
-    const response = await axios.post(
-      `${constants.BACKEND_URL}/trend_query4/`,
-      selectedStates
-    );
+    if (
+      selectedStates.startYearVal != "All" &&
+      selectedStates.endYearVal != "All" &&
+      parseInt(selectedStates.startYearVal) >
+        parseInt(selectedStates.endYearVal)
+    ) {
+      alert("End year must be greater than start year.");
+    } else {
+      const response = await axios.post(
+        `${constants.BACKEND_URL}/trend_query4/`,
+        selectedStates
+      );
 
-    const data = response.data;
-    let xArr = [];
-    let yArr = [];
+      const data = response.data;
+      let xArr = [];
+      let yArr = [];
 
-    setXAxisData(xArr);
-    const uniqueVals = [];
-    for (let i = 0; i < data.length; i++) {
-      if (uniqueVals.indexOf(data[i][2]) === -1) {
-        uniqueVals.push(data[i][2]);
+      setXAxisData(xArr);
+      const uniqueVals = [];
+      for (let i = 0; i < data.length; i++) {
+        if (uniqueVals.indexOf(data[i][2]) === -1) {
+          uniqueVals.push(data[i][2]);
+        }
       }
-    }
-    for (let i = 0; i < uniqueVals.length; i++) {
-      yArr.push([]);
-    }
-    let val = uniqueVals[0];
-    for (let i = 0; i < data.length; i++) {
-      if (data[i][2] === val) {
-        xArr.push(data[i][1]);
+      for (let i = 0; i < uniqueVals.length; i++) {
+        yArr.push([]);
       }
+      let val = uniqueVals[0];
+      for (let i = 0; i < data.length; i++) {
+        if (data[i][2] === val) {
+          xArr.push(data[i][1]);
+        }
+      }
+      for (let i = 0; i < data.length; i++) {
+        let ind = uniqueVals.indexOf(data[i][2]);
+        if (yArr[ind].length !== xArr.length) yArr[ind].push(data[i][0]);
+      }
+      let series = [];
+      for (let i = 0; i < yArr.length; i++) {
+        series.push({
+          id: uniqueVals[i],
+          data: yArr[i],
+          area: true,
+          stack: "total",
+          label: uniqueVals[i],
+        });
+      }
+      setYAxisData([...series]);
     }
-    for (let i = 0; i < data.length; i++) {
-      let ind = uniqueVals.indexOf(data[i][2]);
-      yArr[ind].push(data[i][0]);
-    }
-    let series = [];
-    for (let i = 0; i < yArr.length; i++) {
-      series.push({
-        id: uniqueVals[i],
-        data: yArr[i],
-        area: true,
-        stack: "total",
-        label: uniqueVals[i],
-      });
-    }
-    console.log(series);
-    setYAxisData([...series]);
   };
 
   const handleReset = () => {
@@ -117,7 +125,7 @@ const Query4 = () => {
 
   return (
     <>
-      {stateList.length > 0 && (
+      {stateList.length && (
         <div
           style={{
             width: "100%",
@@ -261,6 +269,7 @@ const Query4 = () => {
                 variant="outlined"
                 sx={{ width: "100%", height: "100%" }}
                 onClick={handleSubmit}
+                disabled={selectedStates.holidayVal.length === 0}
               >
                 Submit
               </Button>

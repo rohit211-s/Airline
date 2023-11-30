@@ -31,7 +31,7 @@ router.get("/trend_query4/filter_data", async (req, res) => {
   query = `select distinct type from ${process.env.DB_USERNAME_REPLACE_PREFIX}seasonal_breaks`;
   const seasonResp = await dbConnection.execute(query);
   responseData.seasons = seasonResp.rows;
-  query = `select distinct year from kondas.airlines_delay`;
+  query = `select distinct year from ${process.env.DB_USERNAME_REPLACE_PREFIX}airlines_delay`;
   const yearsResp = await dbConnection.execute(query);
   responseData.years = yearsResp.rows;
   res.status(200).send(responseData);
