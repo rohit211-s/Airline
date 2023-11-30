@@ -22,7 +22,7 @@ app.use(cors());
 app.use(express.json());
 app.use(rawEditorRouter);
 app.use(trendQuery2Router);
-app.user(trendQuery4Router);
+app.use(trendQuery4Router);
 app.use(trendQuery5Router);
 app.use(dashboardRouter);
 
