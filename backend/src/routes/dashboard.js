@@ -12,9 +12,8 @@ const dashboardQueries = require("../queries/dashboard/dashboard");
 const { getConnection } = require("../db/db");
 
 const processTableInfo = (tableInfo) => {
-  const tableObj = { data: {}, totalRows: 0 };
+  const tableObj = { data: tableInfo, totalRows: 0 };
   for (let i = 0; i < tableInfo.length; i++) {
-    tableObj["data"] = tableInfo;
     tableObj["totalRows"] += tableInfo[i][1];
   }
 
@@ -24,10 +23,14 @@ const processTableInfo = (tableInfo) => {
 // Routes
 router.get("/dashboard_statistics", async (req, res) => {
   const dbConnection = await getConnection();
-  const tableInfo = await utils.executeQuery(
-    dbConnection,
-    dashboardQueries.tablesInfoQuery
-  );
+  let tableInfo = { data: [], totalRows: 0 };
+  if (process.env.DB_USERNAME_REPLACE_PREFIX == "") {
+    tableInfo = await utils.executeQuery(
+      dbConnection,
+      dashboardQueries.tablesInfoQuery
+    );
+  }
+
   const tripYearInfo = await utils.executeQuery(
     dbConnection,
     dashboardQueries.tripYearQuery
