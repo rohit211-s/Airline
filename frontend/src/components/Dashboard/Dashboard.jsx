@@ -69,7 +69,7 @@ const Dashboard = () => {
               <Typography>Database Level Information</Typography>
               <PieChart
                 colors={pieChartColors}
-                margin={{ left: -570 }}
+                margin={{ left: -680 }}
                 series={[
                   {
                     data: response.tableInfo.data
@@ -97,7 +97,7 @@ const Dashboard = () => {
                       faded: "global",
                       highlighted: "item",
                     },
-                    cx: 1180,
+                    cx: 1140,
                     faded: {
                       innerRadius: 30,
                       additionalRadius: -30,
@@ -112,7 +112,7 @@ const Dashboard = () => {
                     padding: 0,
                   },
                 }}
-                height={400}
+                height={300}
               />
             </Grid>
             <Grid
