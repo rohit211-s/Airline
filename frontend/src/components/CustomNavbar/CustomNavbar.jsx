@@ -16,7 +16,7 @@ const pages = [
     link: "/trendquery1",
   },
   {
-    label: "Passenger Preferences Trend",
+    label: "Passenger Preferences Trends",
     link: "/trendquery2",
   },
   {
@@ -24,7 +24,7 @@ const pages = [
     link: "/trendquery3",
   },
   {
-    label: "Trend Query 4",
+    label: "Holiday Trends",
     link: "/trendquery4",
   },
   {
