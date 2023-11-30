@@ -23,7 +23,7 @@ const processTableInfo = (tableInfo) => {
 // Routes
 router.get("/dashboard_statistics", async (req, res) => {
   const dbConnection = await getConnection();
-  let tableInfo = { data: [], totalRows: 0 };
+  let tableInfo = { rows:[] };
   if (process.env.DB_USERNAME_REPLACE_PREFIX == "") {
     tableInfo = await utils.executeQuery(
       dbConnection,
