@@ -2,6 +2,12 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { LineChart } from "@mui/x-charts/LineChart";
 import constants from "../../../config/config";
+import SearchIcon from "@mui/icons-material/Search";
+import DeleteIcon from "@mui/icons-material/Delete";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import QueryBuilderIcon from "@mui/icons-material/QueryBuilder";
+import FlightIcon from "@mui/icons-material/Flight";
+
 import {
   Box,
   Button,
@@ -170,490 +176,530 @@ const Query2 = () => {
   ];
 
   return (
-    <Grid container padding={2} spacing={2}>
-      <Grid item xs={5}>
-        <FormControl fullWidth>
-          <InputLabel id="timeline">Timeline</InputLabel>
-          <Select
-            labelId="timeline"
-            id="timeline_select"
-            value={mainState.firstDropDown}
-            label="timeline"
-            onChange={(e) => {
-              setMainState({
-                ...mainState,
-                data: [],
-                columnNames: [],
-                filterOptions: [],
-                selectedFilters: [],
-                selectedColumns: [],
-                selectedAirlines: [],
-                firstDropDown: e.target.value,
-              });
-            }}
-          >
-            <MenuItem value={"yearly"}>Yearly</MenuItem>
-            <MenuItem value={"quarterly"}>Quarterly</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-      <Grid item xs={5}>
-        <FormControl fullWidth>
-          <InputLabel id="groupby">Group By</InputLabel>
-          <Select
-            labelId="groupby"
-            id="groupby_select"
-            value={mainState.secondDropDown}
-            label="Group By"
-            onChange={(e) => {
-              setMainState({
-                ...mainState,
-                data: [],
-                columnNames: [],
-                filterOptions: [],
-                selectedFilters: [],
-                selectedColumns: [],
-                secondDropDown: e.target.value,
-              });
-            }}
-          >
-            <MenuItem value={"all"}>All</MenuItem>
-            <MenuItem value={"cities"}>Cities</MenuItem>
-            <MenuItem value={"states"}>States</MenuItem>
-            <MenuItem value={"airports"}>Airports</MenuItem>
-          </Select>
-        </FormControl>
-      </Grid>
-      <Grid item xs={2}>
-        <Button
-          variant="contained"
-          sx={{
-            width: "100%",
-            height: "100%",
-            backgroundColor: "#000042",
-            ":hover": { backgroundColor: "#000022", color: "white" },
-          }}
-          onClick={() => {
-            fetchData();
-          }}
-        >
-          Fetch Filters
-        </Button>
-      </Grid>
-      <Grid item xs={10}>
-        <FormControl fullWidth>
-          <InputLabel id="filteroptions">Filter Options</InputLabel>
-          <Select
-            labelId="filteroptions"
-            id="filter_options_select"
-            multiple
-            value={mainState.selectedFilters}
-            onChange={handleChange}
-            input={
-              <OutlinedInput id="select-multiple-chip" label="Filter Options" />
-            }
-            renderValue={(selected) => (
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                {selected.map((value) => (
-                  <Chip key={value} label={value} />
-                ))}
-              </Box>
-            )}
-            MenuProps={MenuProps}
-          >
-            {mainState.secondDropDown != "all" &&
-            mainState.filterOptions &&
-            mainState.filterOptions.length > 0
-              ? mainState.filterOptions.map((row) => (
-                  <MenuItem key={row[0]} value={row[0]}>
-                    {row[1]}
-                  </MenuItem>
-                ))
-              : null}
-          </Select>
-        </FormControl>
-      </Grid>
-      <Grid item xs={2}>
-        <Button
-          variant="contained"
-          sx={{
-            width: "100%",
-            height: "100%",
-            backgroundColor: "#000042",
-            ":hover": { backgroundColor: "#000022", color: "white" },
-          }}
-          onClick={() => {
-            setMainState({ ...mainState, selectedFilters: [] });
-          }}
-        >
-          Clear All
-        </Button>
-      </Grid>
-      <Grid item xs={10}>
-        <FormControl fullWidth>
-          <InputLabel id="columnoptions">Columns To Visualize</InputLabel>
-          <Select
-            labelId="columnoptions"
-            id="column_options_select"
-            multiple
-            value={mainState.selectedColumns}
-            onChange={handleChangeColumns}
-            input={
-              <OutlinedInput
-                id="select-multiple-chip_columns"
-                label="Columns To Visualize"
-              />
-            }
-            renderValue={(selected) => (
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                {selected.map((value) => (
-                  <Chip key={value} label={value} />
-                ))}
-              </Box>
-            )}
-            MenuProps={MenuProps}
-          >
-            {columns.map((column) => (
-              <MenuItem key={column} value={column}>
-                {column}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Grid>
-      <Grid item xs={2}>
-        <Button
-          variant="contained"
-          sx={{
-            width: "100%",
-            height: "100%",
-            backgroundColor: "#000042",
-            ":hover": { backgroundColor: "#000022", color: "white" },
-          }}
-          onClick={() => {
-            fetchData(false);
-          }}
-        >
-          View Graph
-        </Button>
-      </Grid>
-      {mainState.data.length > 0 ? (
-        <>
-          <Grid item xs={5}>
-            <FormControl fullWidth>
-              <InputLabel id="startdate">Start Date</InputLabel>
-              <Select
-                labelId="startdate"
-                id="startdate_select"
-                value={mainState.startDate}
-                label="Start Date"
-                onChange={(e) => {
-                  setMainState({ ...mainState, startDate: e.target.value });
-                }}
-              >
-                {dateRanges.map((row) => {
-                  return (
-                    <MenuItem key={row} value={row}>
-                      {row}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={5}>
-            <FormControl fullWidth>
-              <InputLabel id="enddate">End Date</InputLabel>
-              <Select
-                labelId="enddate"
-                id="enddate_select"
-                value={mainState.endDate}
-                label="End Date"
-                onChange={(e) => {
-                  setMainState({ ...mainState, endDate: e.target.value });
-                }}
-              >
-                {dateRanges.map((row) => {
-                  return (
-                    <MenuItem key={row} value={row}>
-                      {row}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={2}>
-            <Button
-              variant="contained"
-              sx={{
-                width: "100%",
-                height: "100%",
-                backgroundColor: "#000042",
-                ":hover": { backgroundColor: "#000022", color: "white" },
-              }}
-              onClick={() => {
-                fetchData();
+    <>
+      <Grid
+        container
+        padding={2}
+        spacing={2}
+        boxShadow={3}
+        margin={1}
+        width={"99%"}
+      >
+        <Grid item xs={2}>
+          <FormControl fullWidth>
+            <InputLabel id="timeline">Timeline</InputLabel>
+            <Select
+              labelId="timeline"
+              id="timeline_select"
+              value={mainState.firstDropDown}
+              label="timeline"
+              onChange={(e) => {
+                setMainState({
+                  ...mainState,
+                  data: [],
+                  columnNames: [],
+                  filterOptions: [],
+                  selectedFilters: [],
+                  selectedColumns: [],
+                  selectedAirlines: [],
+                  firstDropDown: e.target.value,
+                });
               }}
             >
-              View Graph
-            </Button>
-          </Grid>
-        </>
-      ) : null}
-
-      <Grid item xs={12}>
-        {(mainState.secondDropDown == "all" &&
-          mainState.filterOptions &&
-          mainState.filterOptions.length > 0 &&
-          mainState.data &&
-          mainState.data.length > 0) ||
-        (mainState.secondDropDown != "all" &&
-          mainState.filterOptions &&
-          mainState.filterOptions.length > 0 &&
-          mainState.data &&
-          mainState.data.length > 0) ? (
-          <>
-            <Typography>
-              Satisfaction of Passengers Based on Feedback Parameters
-            </Typography>
-            <LineChart
-              xAxis={
-                mainState.secondDropDown == "all"
-                  ? [
-                      {
-                        scaleType: "band",
-                        data: mainState.filterOptions.map(
-                          (filter) => filter[0]
-                        ),
-                      },
-                    ]
-                  : [
-                      {
-                        scaleType: "band",
-                        data: [
-                          ...new Set(mainState.data.map((filter) => filter[0])),
-                        ],
-                      },
-                    ]
+              <MenuItem value={"yearly"}>Yearly</MenuItem>
+              <MenuItem value={"quarterly"}>Quarterly</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={2}>
+          <FormControl fullWidth>
+            <InputLabel id="groupby">Group By</InputLabel>
+            <Select
+              labelId="groupby"
+              id="groupby_select"
+              value={mainState.secondDropDown}
+              label="Group By"
+              onChange={(e) => {
+                setMainState({
+                  ...mainState,
+                  data: [],
+                  columnNames: [],
+                  filterOptions: [],
+                  selectedFilters: [],
+                  selectedColumns: [],
+                  secondDropDown: e.target.value,
+                });
+              }}
+            >
+              <MenuItem value={"all"}>All</MenuItem>
+              <MenuItem value={"cities"}>Cities</MenuItem>
+              <MenuItem value={"states"}>States</MenuItem>
+              <MenuItem value={"airports"}>Airports</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={6}>
+          <FormControl fullWidth>
+            <InputLabel id="filteroptions">Filter Options</InputLabel>
+            <Select
+              labelId="filteroptions"
+              id="filter_options_select"
+              multiple
+              value={mainState.selectedFilters}
+              onChange={handleChange}
+              input={
+                <OutlinedInput
+                  id="select-multiple-chip"
+                  label="Filter Options"
+                />
               }
-              series={
-                mainState.secondDropDown == "all"
-                  ? [{ data: mainState.data.map((row) => row[1]) }]
-                  : mainState.selectedFilters.map((filter) => {
-                      return {
-                        data: mainState.data
-                          .filter((row) => {
-                            return row[1] == filter;
-                          })
-                          .map((row) => row[2]),
-                        label: filter,
-                      };
-                    })
-              }
-              height={600}
-              width={1800}
-            ></LineChart>
-          </>
-        ) : null}
-      </Grid>
-      <Grid item xs={12}>
-        {(mainState.secondDropDown == "all" &&
-          mainState.filterOptions &&
-          mainState.filterOptions.length > 0 &&
-          mainState.data &&
-          mainState.data.length > 0) ||
-        (mainState.secondDropDown != "all" &&
-          mainState.filterOptions &&
-          mainState.filterOptions.length > 0 &&
-          mainState.data &&
-          mainState.data.length > 0) ? (
-          <>
-            <Typography>Passengers Travel Frequency</Typography>
-            <LineChart
-              xAxis={
-                mainState.secondDropDown == "all"
-                  ? [
-                      {
-                        scaleType: "band",
-                        data: mainState.filterOptions.map(
-                          (filter) => filter[0]
-                        ),
-                      },
-                    ]
-                  : [
-                      {
-                        scaleType: "band",
-                        data: [
-                          ...new Set(
-                            mainState.passengerFareInfo.map(
-                              (filter) => filter[0]
-                            )
-                          ),
-                        ],
-                      },
-                    ]
-              }
-              series={
-                mainState.secondDropDown == "all"
-                  ? [{ data: mainState.passengerFareInfo.map((row) => row[1]) }]
-                  : mainState.selectedFilters.map((filter) => {
-                      return {
-                        data: mainState.passengerFareInfo
-                          .filter((row) => {
-                            return row[1] == filter;
-                          })
-                          .map((row) => row[2]),
-                        label: filter,
-                      };
-                    })
-              }
-              height={600}
-              width={1800}
-            ></LineChart>
-          </>
-        ) : null}
-      </Grid>
-      <Grid item xs={12}>
-        {(mainState.secondDropDown == "all" &&
-          mainState.filterOptions &&
-          mainState.filterOptions.length > 0 &&
-          mainState.data &&
-          mainState.data.length > 0) ||
-        (mainState.secondDropDown != "all" &&
-          mainState.filterOptions &&
-          mainState.filterOptions.length > 0 &&
-          mainState.data &&
-          mainState.data.length > 0) ? (
-          <>
-            <Typography>
-              Airline Trip Fares Information for a given time
-            </Typography>
-            <LineChart
-              xAxis={
-                mainState.secondDropDown == "all"
-                  ? [
-                      {
-                        scaleType: "band",
-                        data: mainState.filterOptions.map(
-                          (filter) => filter[0]
-                        ),
-                      },
-                    ]
-                  : [
-                      {
-                        scaleType: "band",
-                        data: [
-                          ...new Set(
-                            mainState.passengerFareInfo.map(
-                              (filter) => filter[0]
-                            )
-                          ),
-                        ],
-                      },
-                    ]
-              }
-              series={
-                mainState.secondDropDown == "all"
-                  ? [{ data: mainState.passengerFareInfo.map((row) => row[2]) }]
-                  : mainState.selectedFilters.map((filter) => {
-                      return {
-                        data: mainState.passengerFareInfo
-                          .filter((row) => {
-                            return row[1] == filter;
-                          })
-                          .map((row) => row[3]),
-                        label: filter,
-                      };
-                    })
-              }
-              height={600}
-              width={1800}
-            ></LineChart>
-          </>
-        ) : null}
-      </Grid>
-      <Grid item xs={10}>
-        <FormControl fullWidth>
-          <InputLabel id="airline_filter">Airline Filter</InputLabel>
-          <Select
-            labelId="airline_filter"
-            id="airline_filter_options_select"
-            multiple
-            value={mainState.selectedAirlines}
-            onChange={handleChangeAirlines}
-            input={
-              <OutlinedInput id="select-multiple-chip" label="Airline Filter" />
-            }
-            renderValue={(selected) => (
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                {selected.map((value) => (
-                  <Chip key={value} label={value} />
-                ))}
-              </Box>
-            )}
-            MenuProps={MenuProps}
+              renderValue={(selected) => (
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                  {selected.map((value) => (
+                    <Chip key={value} label={value} />
+                  ))}
+                </Box>
+              )}
+              MenuProps={MenuProps}
+            >
+              {mainState.secondDropDown != "all" &&
+              mainState.filterOptions &&
+              mainState.filterOptions.length > 0
+                ? mainState.filterOptions.map((row) => (
+                    <MenuItem key={row[0]} value={row[0]}>
+                      {row[1]}
+                    </MenuItem>
+                  ))
+                : null}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={1}>
+          <Button
+            variant="contained"
+            sx={{
+              width: "100%",
+              height: "100%",
+              backgroundColor: "#000042",
+              ":hover": { backgroundColor: "#000022", color: "white" },
+            }}
+            onClick={() => {
+              fetchData();
+            }}
+            startIcon={<SearchIcon />}
           >
-            {mainState.airlinesList && mainState.airlinesList.length > 0
-              ? mainState.airlinesList.map((row) => (
-                  <MenuItem key={row} value={row}>
-                    {row}
-                  </MenuItem>
-                ))
-              : null}
-          </Select>
-        </FormControl>
-      </Grid>
-      <Grid item xs={2}>
-        <Button
-          variant="contained"
-          sx={{
-            width: "100%",
-            height: "100%",
-            backgroundColor: "#000042",
-            ":hover": { backgroundColor: "#000022", color: "white" },
-          }}
-          onClick={() => {
-            setMainState({ ...mainState, selectedAirlines: [] });
-          }}
-        >
-          Clear All
-        </Button>
-      </Grid>
-      <Grid item xs={12}>
-        {mainState.airlinesList &&
-        mainState.airlinesList.length > 0 &&
-        mainState.selectedAirlines &&
-        mainState.selectedAirlines.length > 0 &&
-        mainState.popularAirlines &&
-        mainState.popularAirlines.length > 0 ? (
-          <LineChart
-            xAxis={[
-              {
-                scaleType: "band",
-                data: [
-                  ...new Set(
-                    mainState.popularAirlines.map((filter) => filter[0])
-                  ),
-                ],
-              },
-            ]}
-            series={mainState.selectedAirlines.map((filter) => {
-              return {
-                data: mainState.popularAirlines
-                  .filter((row) => {
-                    return row[1] == filter;
-                  })
-                  .map((row) => row[2]),
-                label: filter,
-              };
-            })}
-            height={600}
-            width={1800}
-          ></LineChart>
+            Filters
+          </Button>
+        </Grid>
+
+        <Grid item xs={1}>
+          <Button
+            variant="contained"
+            sx={{
+              width: "100%",
+              height: "100%",
+              backgroundColor: "#000042",
+              ":hover": { backgroundColor: "#000022", color: "white" },
+            }}
+            onClick={() => {
+              setMainState({ ...mainState, selectedFilters: [] });
+            }}
+            startIcon={<DeleteIcon />}
+          >
+            Filters
+          </Button>
+        </Grid>
+        <Grid item xs={5}>
+          <FormControl fullWidth>
+            <InputLabel id="columnoptions">Columns To Visualize</InputLabel>
+            <Select
+              labelId="columnoptions"
+              id="column_options_select"
+              multiple
+              value={mainState.selectedColumns}
+              onChange={handleChangeColumns}
+              input={
+                <OutlinedInput
+                  id="select-multiple-chip_columns"
+                  label="Columns To Visualize"
+                />
+              }
+              renderValue={(selected) => (
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                  {selected.map((value) => (
+                    <Chip key={value} label={value} />
+                  ))}
+                </Box>
+              )}
+              MenuProps={MenuProps}
+            >
+              {columns.map((column) => (
+                <MenuItem key={column} value={column}>
+                  {column}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={1}>
+          <Button
+            variant="contained"
+            sx={{
+              width: "100%",
+              height: "100%",
+              backgroundColor: "#000042",
+              ":hover": { backgroundColor: "#000022", color: "white" },
+            }}
+            onClick={() => {
+              fetchData(false);
+            }}
+            startIcon={<PlayArrowIcon />}
+          ></Button>
+        </Grid>
+        {mainState.data.length > 0 ? (
+          <>
+            <Grid item xs={2}>
+              <FormControl fullWidth>
+                <InputLabel id="startdate">Start Date</InputLabel>
+                <Select
+                  labelId="startdate"
+                  id="startdate_select"
+                  value={mainState.startDate}
+                  label="Start Date"
+                  onChange={(e) => {
+                    setMainState({ ...mainState, startDate: e.target.value });
+                  }}
+                >
+                  {dateRanges.map((row) => {
+                    return (
+                      <MenuItem key={row} value={row}>
+                        {row}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={2}>
+              <FormControl fullWidth>
+                <InputLabel id="enddate">End Date</InputLabel>
+                <Select
+                  labelId="enddate"
+                  id="enddate_select"
+                  value={mainState.endDate}
+                  label="End Date"
+                  onChange={(e) => {
+                    setMainState({ ...mainState, endDate: e.target.value });
+                  }}
+                >
+                  {dateRanges.map((row) => {
+                    return (
+                      <MenuItem key={row} value={row}>
+                        {row}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={2}>
+              <Button
+                variant="contained"
+                sx={{
+                  width: "100%",
+                  height: "100%",
+                  backgroundColor: "#000042",
+                  ":hover": { backgroundColor: "#000022", color: "white" },
+                }}
+                onClick={() => {
+                  fetchData();
+                }}
+                startIcon={<QueryBuilderIcon />}
+              >
+                Visualize Data
+              </Button>
+            </Grid>
+          </>
         ) : null}
+        <Grid item xs={10}>
+          <FormControl fullWidth>
+            <InputLabel id="airline_filter">Airline Filter</InputLabel>
+            <Select
+              labelId="airline_filter"
+              id="airline_filter_options_select"
+              multiple
+              value={mainState.selectedAirlines}
+              onChange={handleChangeAirlines}
+              input={
+                <OutlinedInput
+                  id="select-multiple-chip"
+                  label="Airline Filter"
+                />
+              }
+              renderValue={(selected) => (
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                  {selected.map((value) => (
+                    <Chip key={value} label={value} />
+                  ))}
+                </Box>
+              )}
+              MenuProps={MenuProps}
+            >
+              {mainState.airlinesList && mainState.airlinesList.length > 0
+                ? mainState.airlinesList.map((row) => (
+                    <MenuItem key={row} value={row}>
+                      {row}
+                    </MenuItem>
+                  ))
+                : null}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={2}>
+          <Button
+            variant="contained"
+            sx={{
+              width: "100%",
+              height: "100%",
+              backgroundColor: "#000042",
+              ":hover": { backgroundColor: "#000022", color: "white" },
+            }}
+            onClick={() => {
+              setMainState({ ...mainState, selectedAirlines: [] });
+            }}
+            endIcon={<FlightIcon />}
+          >
+            Clear
+          </Button>
+        </Grid>
       </Grid>
-    </Grid>
+
+      <Grid container padding={2} spacing={2}>
+        <Grid item xs={12} margin={1} boxShadow={3}>
+          {(mainState.secondDropDown == "all" &&
+            mainState.filterOptions &&
+            mainState.filterOptions.length > 0 &&
+            mainState.data &&
+            mainState.data.length > 0) ||
+          (mainState.secondDropDown != "all" &&
+            mainState.filterOptions &&
+            mainState.filterOptions.length > 0 &&
+            mainState.data &&
+            mainState.data.length > 0) ? (
+            <>
+              <Typography>
+                Satisfaction of Passengers Based on Feedback Parameters
+              </Typography>
+              <LineChart
+                xAxis={
+                  mainState.secondDropDown == "all"
+                    ? [
+                        {
+                          scaleType: "band",
+                          data: mainState.filterOptions.map(
+                            (filter) => filter[0]
+                          ),
+                        },
+                      ]
+                    : [
+                        {
+                          scaleType: "band",
+                          data: [
+                            ...new Set(
+                              mainState.data.map((filter) => filter[0])
+                            ),
+                          ],
+                        },
+                      ]
+                }
+                series={
+                  mainState.secondDropDown == "all"
+                    ? [{ data: mainState.data.map((row) => row[1]) }]
+                    : mainState.selectedFilters.map((filter) => {
+                        return {
+                          data: mainState.data
+                            .filter((row) => {
+                              return row[1] == filter;
+                            })
+                            .map((row) => row[2]),
+                          label: filter,
+                        };
+                      })
+                }
+                height={600}
+                width={1800}
+              ></LineChart>
+            </>
+          ) : null}
+        </Grid>
+        <Grid item xs={12} margin={1} boxShadow={3}>
+          {(mainState.secondDropDown == "all" &&
+            mainState.filterOptions &&
+            mainState.filterOptions.length > 0 &&
+            mainState.data &&
+            mainState.data.length > 0) ||
+          (mainState.secondDropDown != "all" &&
+            mainState.filterOptions &&
+            mainState.filterOptions.length > 0 &&
+            mainState.data &&
+            mainState.data.length > 0) ? (
+            <>
+              <Typography>Passengers Travel Frequency</Typography>
+              <LineChart
+                xAxis={
+                  mainState.secondDropDown == "all"
+                    ? [
+                        {
+                          scaleType: "band",
+                          data: mainState.filterOptions.map(
+                            (filter) => filter[0]
+                          ),
+                        },
+                      ]
+                    : [
+                        {
+                          scaleType: "band",
+                          data: [
+                            ...new Set(
+                              mainState.passengerFareInfo.map(
+                                (filter) => filter[0]
+                              )
+                            ),
+                          ],
+                        },
+                      ]
+                }
+                series={
+                  mainState.secondDropDown == "all"
+                    ? [
+                        {
+                          data: mainState.passengerFareInfo.map(
+                            (row) => row[1]
+                          ),
+                        },
+                      ]
+                    : mainState.selectedFilters.map((filter) => {
+                        return {
+                          data: mainState.passengerFareInfo
+                            .filter((row) => {
+                              return row[1] == filter;
+                            })
+                            .map((row) => row[2]),
+                          label: filter,
+                        };
+                      })
+                }
+                height={600}
+                width={1800}
+              ></LineChart>
+            </>
+          ) : null}
+        </Grid>
+        <Grid item xs={12} margin={1} boxShadow={3}>
+          {(mainState.secondDropDown == "all" &&
+            mainState.filterOptions &&
+            mainState.filterOptions.length > 0 &&
+            mainState.data &&
+            mainState.data.length > 0) ||
+          (mainState.secondDropDown != "all" &&
+            mainState.filterOptions &&
+            mainState.filterOptions.length > 0 &&
+            mainState.data &&
+            mainState.data.length > 0) ? (
+            <>
+              <Typography>
+                Airline Trip Fares Information for a given time
+              </Typography>
+              <LineChart
+                xAxis={
+                  mainState.secondDropDown == "all"
+                    ? [
+                        {
+                          scaleType: "band",
+                          data: mainState.filterOptions.map(
+                            (filter) => filter[0]
+                          ),
+                        },
+                      ]
+                    : [
+                        {
+                          scaleType: "band",
+                          data: [
+                            ...new Set(
+                              mainState.passengerFareInfo.map(
+                                (filter) => filter[0]
+                              )
+                            ),
+                          ],
+                        },
+                      ]
+                }
+                series={
+                  mainState.secondDropDown == "all"
+                    ? [
+                        {
+                          data: mainState.passengerFareInfo.map(
+                            (row) => row[2]
+                          ),
+                        },
+                      ]
+                    : mainState.selectedFilters.map((filter) => {
+                        return {
+                          data: mainState.passengerFareInfo
+                            .filter((row) => {
+                              return row[1] == filter;
+                            })
+                            .map((row) => row[3]),
+                          label: filter,
+                        };
+                      })
+                }
+                height={600}
+                width={1800}
+              ></LineChart>
+            </>
+          ) : null}
+        </Grid>
+        <Grid item xs={12} margin={1} boxShadow={3}>
+          {mainState.airlinesList &&
+          mainState.airlinesList.length > 0 &&
+          mainState.selectedAirlines &&
+          mainState.selectedAirlines.length > 0 &&
+          mainState.popularAirlines &&
+          mainState.popularAirlines.length > 0 ? (
+            <>
+              <Typography>
+                Popular Airlines For the Chosen Time Series
+              </Typography>
+              <LineChart
+                xAxis={[
+                  {
+                    scaleType: "band",
+                    data: [
+                      ...new Set(
+                        mainState.popularAirlines.map((filter) => filter[0])
+                      ),
+                    ],
+                  },
+                ]}
+                series={mainState.selectedAirlines.map((filter) => {
+                  return {
+                    data: mainState.popularAirlines
+                      .filter((row) => {
+                        return row[1] == filter;
+                      })
+                      .map((row) => row[2]),
+                    label: filter,
+                  };
+                })}
+                height={600}
+                width={1800}
+              ></LineChart>
+            </>
+          ) : null}
+        </Grid>
+      </Grid>
+    </>
   );
 };
 
