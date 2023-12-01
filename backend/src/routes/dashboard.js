@@ -14,6 +14,7 @@ const { getConnection } = require("../db/db");
 const processTableInfo = (tableInfo) => {
   const tableObj = { data: [] };
   for (let i = 0; i < tableInfo.length; i++) {
+    tableObj["data"] = tableInfo;
     tableObj["totalRows"] += tableInfo[i][1];
   }
 
@@ -23,7 +24,7 @@ const processTableInfo = (tableInfo) => {
 // Routes
 router.get("/dashboard_statistics", async (req, res) => {
   const dbConnection = await getConnection();
-  let tableInfo = { rows:[] };
+  let tableInfo = { rows: [] };
   if (process.env.DB_USERNAME_REPLACE_PREFIX == "") {
     tableInfo = await utils.executeQuery(
       dbConnection,

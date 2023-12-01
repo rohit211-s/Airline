@@ -29,43 +29,27 @@ const trendQuery2 = `WITH date_classifier AS (
     SELECT
         (
             SELECT
-                TO_NUMBER(regexp_substr('%startDate%', '[^-]+', 1, level)) AS string_parts
+                TO_NUMBER(regexp_substr('%startDate%', '[^-]+', 1, 1)) AS string_parts
             FROM
                 dual
-            CONNECT BY
-                regexp_substr('%startDate%', '[^-]+', 1, level) IS NOT NULL
-            FETCH FIRST 1 ROW ONLY
         ) min_year,
         (
             SELECT
-                TO_NUMBER(regexp_substr('%startDate%', '[^-]+', 2, level)) AS string_parts
+                TO_NUMBER(regexp_substr('%startDate%', '[^-]+', 1, 2)) AS string_parts
             FROM
                 dual
-            CONNECT BY
-                regexp_substr('%startDate%', '[^-]+', 2, level) IS NOT NULL
-            ORDER BY
-                ROWNUM DESC
-            FETCH FIRST 1 ROW ONLY
         ) min_quarter,
         (
             SELECT
-                TO_NUMBER(regexp_substr('%endDate%', '[^-]+', 1, level)) AS string_parts
+                TO_NUMBER(regexp_substr('%endDate%', '[^-]+', 1, 1)) AS string_parts
             FROM
                 dual
-            CONNECT BY
-                regexp_substr('%endDate%', '[^-]+', 1, level) IS NOT NULL
-            FETCH FIRST 1 ROW ONLY
         ) max_year,
         (
             SELECT
-                TO_NUMBER(regexp_substr('%endDate%', '[^-]+', 2, level)) AS string_parts
+                TO_NUMBER(regexp_substr('%endDate%', '[^-]+', 1, 2)) AS string_parts
             FROM
                 dual
-            CONNECT BY
-                regexp_substr('%endDate%', '[^-]+', 2, level) IS NOT NULL
-            ORDER BY
-                ROWNUM DESC
-            FETCH FIRST 1 ROW ONLY
         ) max_quarter
     FROM
         dual
