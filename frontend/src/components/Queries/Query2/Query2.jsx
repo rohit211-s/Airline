@@ -12,6 +12,7 @@ import {
   MenuItem,
   OutlinedInput,
   Select,
+  Typography,
 } from "@mui/material";
 
 const Query2 = () => {
@@ -20,6 +21,7 @@ const Query2 = () => {
     columnNames: [],
     data: [],
     popularAirlines: [],
+    passengerFareInfo: [],
     firstDropDown: "yearly",
     secondDropDown: "all",
     filterOptions: [],
@@ -120,6 +122,7 @@ const Query2 = () => {
         data: resp1.data.data,
         filterOptions: resp2.data,
         popularAirlines: resp1.data.popularAirlines,
+        passengerFareInfo: resp1.data.passengerFareInfo,
         airlinesList: [
           ...new Set(resp1.data.popularAirlines.map((row) => row[1])),
         ],
@@ -130,6 +133,7 @@ const Query2 = () => {
         columnNames: resp1.data.columnNames,
         data: resp1.data.data,
         popularAirlines: resp1.data.popularAirlines,
+        passengerFareInfo: resp1.data.passengerFareInfo,
         airlinesList: [
           ...new Set(resp1.data.popularAirlines.map((row) => row[1])),
         ],
@@ -233,7 +237,7 @@ const Query2 = () => {
             fetchData();
           }}
         >
-          View Graph
+          Fetch Filters
         </Button>
       </Grid>
       <Grid item xs={10}>
@@ -409,41 +413,164 @@ const Query2 = () => {
           mainState.filterOptions.length > 0 &&
           mainState.data &&
           mainState.data.length > 0) ? (
-          <LineChart
-            xAxis={
-              mainState.secondDropDown == "all"
-                ? [
-                    {
-                      scaleType: "band",
-                      data: mainState.filterOptions.map((filter) => filter[0]),
-                    },
-                  ]
-                : [
-                    {
-                      scaleType: "band",
-                      data: [
-                        ...new Set(mainState.data.map((filter) => filter[0])),
-                      ],
-                    },
-                  ]
-            }
-            series={
-              mainState.secondDropDown == "all"
-                ? [{ data: mainState.data.map((row) => row[1]) }]
-                : mainState.selectedFilters.map((filter) => {
-                    return {
-                      data: mainState.data
-                        .filter((row) => {
-                          return row[1] == filter;
-                        })
-                        .map((row) => row[2]),
-                      label: filter,
-                    };
-                  })
-            }
-            height={600}
-            width={1800}
-          ></LineChart>
+          <>
+            <Typography>
+              Satisfaction of Passengers Based on Feedback Parameters
+            </Typography>
+            <LineChart
+              xAxis={
+                mainState.secondDropDown == "all"
+                  ? [
+                      {
+                        scaleType: "band",
+                        data: mainState.filterOptions.map(
+                          (filter) => filter[0]
+                        ),
+                      },
+                    ]
+                  : [
+                      {
+                        scaleType: "band",
+                        data: [
+                          ...new Set(mainState.data.map((filter) => filter[0])),
+                        ],
+                      },
+                    ]
+              }
+              series={
+                mainState.secondDropDown == "all"
+                  ? [{ data: mainState.data.map((row) => row[1]) }]
+                  : mainState.selectedFilters.map((filter) => {
+                      return {
+                        data: mainState.data
+                          .filter((row) => {
+                            return row[1] == filter;
+                          })
+                          .map((row) => row[2]),
+                        label: filter,
+                      };
+                    })
+              }
+              height={600}
+              width={1800}
+            ></LineChart>
+          </>
+        ) : null}
+      </Grid>
+      <Grid item xs={12}>
+        {(mainState.secondDropDown == "all" &&
+          mainState.filterOptions &&
+          mainState.filterOptions.length > 0 &&
+          mainState.data &&
+          mainState.data.length > 0) ||
+        (mainState.secondDropDown != "all" &&
+          mainState.filterOptions &&
+          mainState.filterOptions.length > 0 &&
+          mainState.data &&
+          mainState.data.length > 0) ? (
+          <>
+            <Typography>Passengers Travel Frequency</Typography>
+            <LineChart
+              xAxis={
+                mainState.secondDropDown == "all"
+                  ? [
+                      {
+                        scaleType: "band",
+                        data: mainState.filterOptions.map(
+                          (filter) => filter[0]
+                        ),
+                      },
+                    ]
+                  : [
+                      {
+                        scaleType: "band",
+                        data: [
+                          ...new Set(
+                            mainState.passengerFareInfo.map(
+                              (filter) => filter[0]
+                            )
+                          ),
+                        ],
+                      },
+                    ]
+              }
+              series={
+                mainState.secondDropDown == "all"
+                  ? [{ data: mainState.passengerFareInfo.map((row) => row[1]) }]
+                  : mainState.selectedFilters.map((filter) => {
+                      return {
+                        data: mainState.passengerFareInfo
+                          .filter((row) => {
+                            return row[1] == filter;
+                          })
+                          .map((row) => row[2]),
+                        label: filter,
+                      };
+                    })
+              }
+              height={600}
+              width={1800}
+            ></LineChart>
+          </>
+        ) : null}
+      </Grid>
+      <Grid item xs={12}>
+        {(mainState.secondDropDown == "all" &&
+          mainState.filterOptions &&
+          mainState.filterOptions.length > 0 &&
+          mainState.data &&
+          mainState.data.length > 0) ||
+        (mainState.secondDropDown != "all" &&
+          mainState.filterOptions &&
+          mainState.filterOptions.length > 0 &&
+          mainState.data &&
+          mainState.data.length > 0) ? (
+          <>
+            <Typography>
+              Airline Trip Fares Information for a given time
+            </Typography>
+            <LineChart
+              xAxis={
+                mainState.secondDropDown == "all"
+                  ? [
+                      {
+                        scaleType: "band",
+                        data: mainState.filterOptions.map(
+                          (filter) => filter[0]
+                        ),
+                      },
+                    ]
+                  : [
+                      {
+                        scaleType: "band",
+                        data: [
+                          ...new Set(
+                            mainState.passengerFareInfo.map(
+                              (filter) => filter[0]
+                            )
+                          ),
+                        ],
+                      },
+                    ]
+              }
+              series={
+                mainState.secondDropDown == "all"
+                  ? [{ data: mainState.passengerFareInfo.map((row) => row[2]) }]
+                  : mainState.selectedFilters.map((filter) => {
+                      return {
+                        data: mainState.passengerFareInfo
+                          .filter((row) => {
+                            return row[1] == filter;
+                          })
+                          .map((row) => row[3]),
+                        label: filter,
+                      };
+                    })
+              }
+              height={600}
+              width={1800}
+            ></LineChart>
+          </>
         ) : null}
       </Grid>
       <Grid item xs={10}>

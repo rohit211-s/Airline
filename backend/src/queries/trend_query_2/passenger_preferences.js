@@ -221,8 +221,10 @@ const trendQuery2 = `WITH date_classifier AS (
         t1.year,
         t1.quarter,
         t1.airport,
-        SUM(t1.sum_passengers) / SUM(t1.total_passengers) avg_passengers,
-        SUM(t1.sum_fares) / SUM(t1.total_fares)           avg_fares
+        sum(sum_passengers) sum_passengers,
+        sum(sum_fares) sum_fares,
+        sum(total_passengers) total_passengers,
+        sum(total_fares) total_fares
     FROM
         (
             SELECT

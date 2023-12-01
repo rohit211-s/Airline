@@ -98,10 +98,33 @@ router.get("/trend_query_2", async (req, res) => {
 
   const resp2 = await utils.executeQuery(dbConnection, popularAirlines);
 
+  // Passenger and Fare Changes
+  let {
+    selectColumns: selectColumns3,
+    groupByAttributes: groupByAttributes3,
+    orderByColumns: orderByColumns3,
+  } = utils.getQueryAttributes(params);
+
+  selectColumns3.push("SUM(sum_passengers)/ SUM(total_passengers)");
+  selectColumns3.push("SUM(sum_fares)/ SUM(total_fares)");
+
+  const passengerAndFareQuery =
+    trendQuery2
+      .replace(/%startDate%/g, "" + startDate)
+      .replace(/%endDate%/g, "" + endDate) +
+    ` SELECT ${selectColumns3.join(
+      ","
+    )} FROM %%DB_USERNAME%%airport_level_trip_information GROUP BY ${groupByAttributes3.join(
+      ","
+    )} ORDER BY ${orderByColumns3.join(",")}`;
+
+  const resp3 = await utils.executeQuery(dbConnection, passengerAndFareQuery);
+
   res.status(200).send({
     columnNames: resp.metaData.map((row) => row.name),
     data: resp.rows,
     popularAirlines: resp2.rows,
+    passengerFareInfo: resp3.rows,
   });
 });
 
