@@ -1,4 +1,393 @@
-SELECT distinct t1.acronym state_code, t2.official_name_state state_name from (SELECT distinct regexp_replace(from_airport, '(.+), (.+), (.+)', '\3') acronym FROM airport_distances UNION SELECT distinct regexp_replace(to_airport, '(.+), (.+), (.+)', '\3') acronym FROM airport_distances) t1 inner join states t2 on t1.acronym = t2.usps_state_abbreviation order by state_code%%__QUERY_DELIM__%%SELECT distinct CONCAT(year, CONCAT(' - ', quarter)) quarter_code, CONCAT(year, CONCAT(' - ', quarter)) quarter_name from airlines_trips  WHERE
+
+WITH DelayData AS (
+    SELECT 
+        t2.DELAY_ID, 
+        t2.YEAR, 
+        t2.MONTH, 
+        t2.CARRIER_NAME, 
+        t1.AIRPORT,
+        t1.CITY, 
+        t1.STATE,
+        t2.WEATHER_CT
+    FROM 
+        AIRPORTS t1
+        INNER JOIN ASSOCIATED_WITH t3 ON t1.IATA_CODE = t3.AIRPORT_IATA_CODE
+        INNER JOIN AIRLINES_DELAY t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+JoinedData AS (
+    SELECT 
+        t2.YEAR,
+        CASE 
+            WHEN t2.MONTH BETWEEN 1 AND 3 THEN 'Q1'
+            WHEN t2.MONTH BETWEEN 4 AND 6 THEN 'Q2'
+            WHEN t2.MONTH BETWEEN 7 AND 9 THEN 'Q3'
+            WHEN t2.MONTH BETWEEN 10 AND 12 THEN 'Q4'
+        END AS QUARTER,
+        t2.AIRPORT,
+        t2.CITY,
+        t2.STATE,
+        t2.WEATHER_CT
+    FROM 
+        DISASTERS t1
+        INNER JOIN CAUSES t3 ON t1.ID = t3.DISASTER_ID
+        INNER JOIN DelayData t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+AggregatedData AS (
+    SELECT 
+        jd.STATE,
+        jd.YEAR,
+        jd.QUARTER,
+        AVG(jd.WEATHER_CT) AS AvgWeatherImpact
+    FROM 
+        JoinedData jd
+    GROUP BY 
+        jd.STATE, jd.YEAR, jd.QUARTER
+    HAVING
+    jd.STATE = :fromState AND
+    jd.YEAR BETWEEN :startYear AND :endYear AND
+    jd.QUARTER BETWEEN :startQuarter AND :endQuarter
+)
+SELECT 
+    ad.STATE,
+    ad.YEAR,
+    ad.QUARTER, 
+    ad.AvgWeatherImpact
+FROM 
+    AggregatedData ad
+ORDER BY 
+    ad.STATE, ad.YEAR, ad.QUARTER
+%%__QUERY_DELIM__%%
+WITH DelayData AS (
+    SELECT 
+        t2.DELAY_ID, 
+        t2.YEAR, 
+        t2.MONTH, 
+        t2.CARRIER_NAME, 
+        t1.AIRPORT,
+        t1.CITY, 
+        t1.STATE,
+        t2.WEATHER_CT
+    FROM 
+        AIRPORTS t1
+        INNER JOIN ASSOCIATED_WITH t3 ON t1.IATA_CODE = t3.AIRPORT_IATA_CODE
+        INNER JOIN AIRLINES_DELAY t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+JoinedData AS (
+    SELECT 
+        t2.YEAR,
+        CASE 
+            WHEN t2.MONTH BETWEEN 1 AND 3 THEN 'Q1'
+            WHEN t2.MONTH BETWEEN 4 AND 6 THEN 'Q2'
+            WHEN t2.MONTH BETWEEN 7 AND 9 THEN 'Q3'
+            WHEN t2.MONTH BETWEEN 10 AND 12 THEN 'Q4'
+        END AS QUARTER,
+        t2.AIRPORT,
+        t2.CITY,
+        t2.STATE,
+        t2.WEATHER_CT
+    FROM 
+        DISASTERS t1
+        INNER JOIN CAUSES t3 ON t1.ID = t3.DISASTER_ID
+        INNER JOIN DelayData t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+AggregatedData AS (
+    SELECT 
+        jd.STATE,
+        jd.YEAR,
+        jd.QUARTER,
+        AVG(jd.WEATHER_CT) AS AvgWeatherImpact
+    FROM 
+        JoinedData jd
+    GROUP BY 
+        jd.STATE, jd.YEAR, jd.QUARTER
+    HAVING
+    jd.STATE = :fromState AND
+    jd.YEAR BETWEEN :startYear AND :endYear AND
+    jd.QUARTER BETWEEN :startQuarter AND :endQuarter
+)
+SELECT 
+    ad.STATE,
+    ad.YEAR,
+    ad.QUARTER, 
+    ad.AvgWeatherImpact
+FROM 
+    AggregatedData ad
+ORDER BY 
+    ad.STATE, ad.YEAR, ad.QUARTER
+%%__QUERY_DELIM__%%
+WITH DelayData AS (
+    SELECT 
+        t2.DELAY_ID, 
+        t2.YEAR, 
+        t2.MONTH, 
+        t2.CARRIER_NAME, 
+        t1.AIRPORT,
+        t1.CITY, 
+        t1.STATE,
+        t2.WEATHER_CT
+    FROM 
+        AIRPORTS t1
+        INNER JOIN ASSOCIATED_WITH t3 ON t1.IATA_CODE = t3.AIRPORT_IATA_CODE
+        INNER JOIN AIRLINES_DELAY t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+JoinedData AS (
+    SELECT 
+        t2.YEAR,
+        CASE 
+            WHEN t2.MONTH BETWEEN 1 AND 3 THEN 'Q1'
+            WHEN t2.MONTH BETWEEN 4 AND 6 THEN 'Q2'
+            WHEN t2.MONTH BETWEEN 7 AND 9 THEN 'Q3'
+            WHEN t2.MONTH BETWEEN 10 AND 12 THEN 'Q4'
+        END AS QUARTER,
+        t2.AIRPORT,
+        t2.CITY,
+        t2.STATE,
+        t2.WEATHER_CT
+    FROM 
+        DISASTERS t1
+        INNER JOIN CAUSES t3 ON t1.ID = t3.DISASTER_ID
+        INNER JOIN DelayData t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+AggregatedData AS (
+    SELECT 
+        jd.STATE,
+        jd.YEAR,
+        jd.QUARTER,
+        AVG(jd.WEATHER_CT) AS AvgWeatherImpact
+    FROM 
+        JoinedData jd
+    GROUP BY 
+        jd.STATE, jd.YEAR, jd.QUARTER
+    HAVING
+    jd.STATE = :fromState AND
+    jd.YEAR BETWEEN :startYear AND :endYear AND
+    jd.QUARTER BETWEEN :startQuarter AND :endQuarter
+)
+SELECT 
+    ad.STATE,
+    ad.YEAR,
+    ad.QUARTER, 
+    ad.AvgWeatherImpact
+FROM 
+    AggregatedData ad
+ORDER BY 
+    ad.STATE, ad.YEAR, ad.QUARTER
+%%__QUERY_DELIM__%%
+WITH DelayData AS (
+    SELECT 
+        t2.DELAY_ID, 
+        t2.YEAR, 
+        t2.MONTH, 
+        t2.CARRIER_NAME, 
+        t1.AIRPORT,
+        t1.CITY, 
+        t1.STATE,
+        t2.WEATHER_CT
+    FROM 
+        AIRPORTS t1
+        INNER JOIN ASSOCIATED_WITH t3 ON t1.IATA_CODE = t3.AIRPORT_IATA_CODE
+        INNER JOIN AIRLINES_DELAY t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+JoinedData AS (
+    SELECT 
+        t2.YEAR,
+        CASE 
+            WHEN t2.MONTH BETWEEN 1 AND 3 THEN 'Q1'
+            WHEN t2.MONTH BETWEEN 4 AND 6 THEN 'Q2'
+            WHEN t2.MONTH BETWEEN 7 AND 9 THEN 'Q3'
+            WHEN t2.MONTH BETWEEN 10 AND 12 THEN 'Q4'
+        END AS QUARTER,
+        t2.AIRPORT,
+        t2.CITY,
+        t2.STATE,
+        t2.WEATHER_CT
+    FROM 
+        DISASTERS t1
+        INNER JOIN CAUSES t3 ON t1.ID = t3.DISASTER_ID
+        INNER JOIN DelayData t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+AggregatedData AS (
+    SELECT 
+        jd.STATE,
+        jd.YEAR,
+        jd.QUARTER,
+        AVG(jd.WEATHER_CT) AS AvgWeatherImpact
+    FROM 
+        JoinedData jd
+    GROUP BY 
+        jd.STATE, jd.YEAR, jd.QUARTER
+    HAVING
+    jd.STATE = :fromState AND
+    jd.YEAR BETWEEN :startYear AND :endYear AND
+    jd.QUARTER BETWEEN :startQuarter AND :endQuarter
+)
+SELECT 
+    ad.STATE,
+    ad.YEAR,
+    ad.QUARTER, 
+    ad.AvgWeatherImpact
+FROM 
+    AggregatedData ad
+ORDER BY 
+    ad.STATE, ad.YEAR, ad.QUARTER
+%%__QUERY_DELIM__%%
+WITH TRIP_SATISFACTION AS (
+    SELECT 
+      TRIP_ID, 
+      ROUND(
+        COUNT(
+          CASE WHEN SATISFACTION = 'satisfied' THEN 1 END
+        ) * 100.0 / NULLIF(
+          COUNT(*), 
+          0
+        ), 
+        2
+      ) AS SATISFACTION_PERCENTAGE 
+    FROM 
+      FEEDBACKS 
+    WHERE 
+      CUSTOMER_TYPE = 'Loyal Customer' 
+    GROUP BY 
+      TRIP_ID
+  ),
+  PRICE_ANALYSIS AS (
+    SELECT 
+      a_t.year, 
+      a_t.QUARTER, 
+      F_S.OFFICIAL_NAME_STATE from_state, 
+      T_S.OFFICIAL_NAME_STATE to_state, 
+      AVG(a_t.Fare) avg_price, 
+      AVG(a_t.PASSENGERS) avg_passengers, 
+      STDDEV(a_t.FARE) fare_stddev, 
+      COUNT(*) trip_count, 
+      LAG(
+        AVG(a_t.PASSENGERS)
+      ) OVER (
+        PARTITION BY F_S.OFFICIAL_NAME_STATE, 
+        T_S.OFFICIAL_NAME_STATE 
+        ORDER BY 
+          a_t.year, 
+          a_t.QUARTER
+      ) prev_avg_passengers, 
+      LAG(
+        AVG(a_t.Fare)
+      ) OVER (
+        PARTITION BY F_S.OFFICIAL_NAME_STATE, 
+        T_S.OFFICIAL_NAME_STATE 
+        ORDER BY 
+          a_t.year, 
+          a_t.QUARTER
+      ) prev_avg_price,
+      ROUND(
+      AVG(ts.SATISFACTION_PERCENTAGE), 
+      2
+    ) AS avg_satisfaction_percentage 
+      FROM 
+      AIRLINES_TRIPS a_t 
+      JOIN AIRPORT_DISTANCES a_d ON a_d.ID = a_t.AIRPORT_DISTANCES_ID 
+      JOIN AIRLINES AL ON AL.ID = a_t.AIRLINE_ID 
+      LEFT JOIN TRIP_SATISFACTION TS ON a_t.trip_id = TS.trip_id
+      JOIN STATES F_S ON F_S.USPS_STATE_ABBREVIATION = TRIM(
+        BOTH ' ' 
+        FROM 
+          REGEXP_SUBSTR(FROM_AIRPORT, '[^,]+$')
+      ) 
+      JOIN STATES T_S ON T_S.USPS_STATE_ABBREVIATION = TRIM(
+        BOTH ' ' 
+        FROM 
+          REGEXP_SUBSTR(TO_AIRPORT, '[^,]+$')
+      ) 
+    WHERE 
+      (
+          (YEAR = :startYear AND QUARTER >= :startQuarter)
+          OR (YEAR > :startYear AND YEAR < :endYear)
+          OR (YEAR = :endYear AND QUARTER <= :endQuarter)
+      )
+      AND TRIM(
+        BOTH ' ' 
+        FROM 
+          REGEXP_SUBSTR(a_d.from_airport, '[^,]+$')
+      ) = (
+        SELECT 
+          USPS_STATE_ABBREVIATION 
+        FROM 
+          STATES 
+        WHERE 
+          OFFICIAL_NAME_STATE = :fromState
+      ) 
+      AND TRIM(
+        BOTH ' ' 
+        FROM 
+          REGEXP_SUBSTR(a_d.to_airport, '[^,]+$')
+      ) = (
+        SELECT 
+          USPS_STATE_ABBREVIATION 
+        FROM 
+          STATES 
+        WHERE 
+          OFFICIAL_NAME_STATE = :toState
+      ) 
+    GROUP BY 
+      a_t.year, 
+      a_t.QUARTER, 
+      F_S.OFFICIAL_NAME_STATE, 
+      T_S.OFFICIAL_NAME_STATE
+  )
+  SELECT 
+  year, 
+  QUARTER,
+  ROUND(
+    avg_price, 
+    2
+  ) AS avg_price, 
+  ROUND(
+    avg_passengers, 
+    2
+  ) AS avg_passengers, 
+  ROUND(
+    fare_stddev, 
+    2
+  ) AS fare_stddev, 
+  --trip_count AS total_trips,
+    ROUND(
+    LEAST(
+      GREATEST(
+        COALESCE(
+          (
+            (avg_price - prev_avg_price) / NULLIF(prev_avg_price, 0)
+          ) * 100, 
+          0
+        ), 
+        -200
+      ), 
+      200
+    ), 
+    2
+  ) AS fare_change_percentage,
+  ROUND(
+    LEAST(
+      GREATEST(
+        COALESCE(
+          (
+            (
+              avg_passengers - prev_avg_passengers
+            ) / NULLIF(prev_avg_passengers, 0)
+          ) * 100, 
+          0
+        ), 
+        -200
+      ), 
+      200
+    ), 
+    2
+  ) AS passenger_change_percentage, 
+  avg_satisfaction_percentage
+FROM 
+  PRICE_ANALYSIS p 
+ORDER BY 
+  year, 
+  QUARTER
+    %%__QUERY_DELIM__%%SELECT distinct t1.acronym state_code, t2.official_name_state state_name from (SELECT distinct regexp_replace(from_airport, '(.+), (.+), (.+)', '\3') acronym FROM airport_distances UNION SELECT distinct regexp_replace(to_airport, '(.+), (.+), (.+)', '\3') acronym FROM airport_distances) t1 inner join states t2 on t1.acronym = t2.usps_state_abbreviation order by state_code%%__QUERY_DELIM__%%SELECT distinct t1.acronym state_code, t2.official_name_state state_name from (SELECT distinct regexp_replace(from_airport, '(.+), (.+), (.+)', '\3') acronym FROM airport_distances UNION SELECT distinct regexp_replace(to_airport, '(.+), (.+), (.+)', '\3') acronym FROM airport_distances) t1 inner join states t2 on t1.acronym = t2.usps_state_abbreviation order by state_code%%__QUERY_DELIM__%%SELECT distinct CONCAT(year, CONCAT(' - ', quarter)) quarter_code, CONCAT(year, CONCAT(' - ', quarter)) quarter_name from airlines_trips  WHERE
     ( 'yearly' = (
             SELECT
                 CASE
@@ -92,4 +481,890 @@ SELECT distinct t1.acronym state_code, t2.official_name_state state_name from (S
         ORDER BY
             ROWNUM DESC
         FETCH FIRST 1 ROW ONLY
+<<<<<<< Updated upstream
     ) ) ) ) ) order by quarter_code%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from airlines_trips t1 inner join feedbacks t2 on t1.trip_id = t2.trip_id group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from airlines_trips group by year order by year%%__QUERY_DELIM__%%SELECT table_name, num_rows from user_tables%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from airlines_trips t1 inner join feedbacks t2 on t1.trip_id = t2.trip_id group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from airlines_trips group by year order by year%%__QUERY_DELIM__%%SELECT table_name, num_rows from user_tables%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips t1 inner join KONDAS.feedbacks t2 on t1.trip_id = t2.trip_id group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips t1 inner join KONDAS.feedbacks t2 on t1.trip_id = t2.trip_id group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips t1 inner join KONDAS.feedbacks t2 on t1.trip_id = t2.trip_id group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips t1 inner join KONDAS.feedbacks t2 on t1.trip_id = t2.trip_id group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips t1 inner join KONDAS.feedbacks t2 on t1.trip_id = t2.trip_id group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips t1 inner join KONDAS.feedbacks t2 on t1.trip_id = t2.trip_id group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips t1 inner join KONDAS.feedbacks t2 on t1.trip_id = t2.trip_id group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips t1 inner join KONDAS.feedbacks t2 on t1.trip_id = t2.trip_id group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips t1 inner join KONDAS.feedbacks t2 on t1.trip_id = t2.trip_id group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips t1 inner join KONDAS.feedbacks t2 on t1.trip_id = t2.trip_id group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips t1 inner join KONDAS.feedbacks t2 on t1.trip_id = t2.trip_id group by year order by year
+=======
+    ) ) ) ) ) order by quarter_code%%__QUERY_DELIM__%%SELECT distinct regexp_replace(from_airport, '(.+), (.+), (.+)', '\2') city_code, regexp_replace(from_airport, '(.+), (.+), (.+)', '\2') city_name FROM airport_distances UNION SELECT distinct regexp_replace(to_airport, '(.+), (.+), (.+)', '\2') city_code, regexp_replace(to_airport, '(.+), (.+), (.+)', '\2') city_name FROM airport_distances order by city_code%%__QUERY_DELIM__%%WITH date_classifier AS (
+    SELECT
+        CASE
+            WHEN length('1993') = 4  THEN
+                'yearly'
+            WHEN length('2024') = 8 THEN
+                'quarterly'
+            ELSE
+                'invalid'
+        END
+    FROM
+        dual
+), date_range_classifier AS (
+    SELECT
+        TO_NUMBER('1993') min_year,
+        1                     min_quarter,
+        TO_NUMBER('2024') max_year,
+        4                     max_quarter
+    FROM
+        dual
+    WHERE
+        'yearly' = (
+            SELECT
+                *
+            FROM
+                date_classifier
+        )
+    UNION
+    SELECT
+        (
+            SELECT
+                TO_NUMBER(regexp_substr('1993', '[^-]+', 1, 1)) AS string_parts
+            FROM
+                dual
+        ) min_year,
+        (
+            SELECT
+                TO_NUMBER(regexp_substr('1993', '[^-]+', 1, 2)) AS string_parts
+            FROM
+                dual
+        ) min_quarter,
+        (
+            SELECT
+                TO_NUMBER(regexp_substr('2024', '[^-]+', 1, 1)) AS string_parts
+            FROM
+                dual
+        ) max_year,
+        (
+            SELECT
+                TO_NUMBER(regexp_substr('2024', '[^-]+', 1, 2)) AS string_parts
+            FROM
+                dual
+        ) max_quarter
+    FROM
+        dual
+    WHERE
+        'quarterly' = (
+            SELECT
+                *
+            FROM
+                date_classifier
+        )
+    UNION
+    SELECT
+        1993 min_year,
+        1    min_quarter,
+        2024 max_year,
+        4    max_quarter
+    FROM
+        dual
+    WHERE
+        'invalid' = (
+            SELECT
+                *
+            FROM
+                date_classifier
+        )
+), custom_airlines_trips AS (
+    SELECT
+        *
+    FROM
+        airlines_trips
+    WHERE
+        ( ( year > (
+            SELECT
+                min_year
+            FROM
+                date_range_classifier
+        ) )
+          OR ( year = (
+                SELECT
+                    min_year
+                FROM
+                    date_range_classifier
+            )
+               AND quarter >= (
+            SELECT
+                min_quarter
+            FROM
+                date_range_classifier
+        ) ) )
+        AND ( ( year < (
+            SELECT
+                max_year
+            FROM
+                date_range_classifier
+        ) )
+              OR ( year = (
+                SELECT
+                    max_year
+                FROM
+                    date_range_classifier
+            )
+                   AND quarter <= (
+            SELECT
+                max_quarter
+            FROM
+                date_range_classifier
+        ) ) )
+), custom_airlines AS (
+    SELECT
+        *
+    FROM
+        airlines
+), custom_feedbacks AS (
+    SELECT
+        *
+    FROM
+        feedbacks
+), custom_feedback_metrics AS (
+    (
+        SELECT
+            (
+                CASE
+                    WHEN satisfaction = 'satisfied' THEN
+                        1
+                    ELSE
+                        0
+                END
+            )                               type,
+            COUNT(*)                        type_count,
+            SUM(COUNT(*)) OVER () total_count,
+            AVG(flight_distance)            avg_flight_distance,
+            AVG(inflight_wifi_service)      avg_inflight_wifi_service,
+            AVG(departure_delay_in_minutes) avg_departure_delay_in_minutes,
+            AVG(arrival_delay_in_minutes)   avg_arrival_delay_in_minutes,
+            AVG(ease_of_online_booking)     avg_ease_of_online_booking,
+            AVG(gate_location)              avg_gate_location,
+            AVG(food_and_drink)             avg_food_and_drink,
+            AVG(online_boarding)            avg_online_boarding,
+            AVG(seat_comfort)               avg_seat_comfort,
+            AVG(inflight_entertainment)     avg_inflight_entertainment,
+            AVG(on_board_service)           avg_on_board_service,
+            AVG(leg_room_service)           avg_leg_room_service,
+            AVG(baggage_handling)           avg_baggage_handling,
+            AVG(checkin_service)            avg_checkin_service,
+            AVG(inflight_service)           avg_inflight_service,
+            AVG(cleanliness)                avg_cleanliness
+        FROM
+            custom_feedbacks
+        GROUP BY
+            satisfaction
+    )
+    UNION
+    (
+        SELECT
+            - 1                             type,
+            COUNT(*)                        type_count,
+            SUM(COUNT(*)) OVER () total_count,
+            AVG(flight_distance)            avg_flight_distance,
+            AVG(inflight_wifi_service)      avg_inflight_wifi_service,
+            AVG(departure_delay_in_minutes) avg_departure_delay_in_minutes,
+            AVG(arrival_delay_in_minutes)   avg_arrival_delay_in_minutes,
+            AVG(ease_of_online_booking)     avg_ease_of_online_booking,
+            AVG(gate_location)              avg_gate_location,
+            AVG(food_and_drink)             avg_food_and_drink,
+            AVG(online_boarding)            avg_online_boarding,
+            AVG(seat_comfort)               avg_seat_comfort,
+            AVG(inflight_entertainment)     avg_inflight_entertainment,
+            AVG(on_board_service)           avg_on_board_service,
+            AVG(leg_room_service)           avg_leg_room_service,
+            AVG(baggage_handling)           avg_baggage_handling,
+            AVG(checkin_service)            avg_checkin_service,
+            AVG(inflight_service)           avg_inflight_service,
+            AVG(cleanliness)                avg_cleanliness
+        FROM
+            custom_feedbacks 
+        WHERE trip_id IN (SELECT trip_id FROM custom_airlines_trips)
+    )
+), from_airport_information AS (
+    SELECT
+        t1.year            year,
+        t1.quarter         quarter,
+        t2.from_airport    airport,
+        SUM(t1.passengers) sum_passengers,
+        COUNT(*)           total_passengers,
+        SUM(t1.fare)       sum_fares,
+        COUNT(*)           total_fares
+    FROM
+             custom_airlines_trips t1
+        INNER JOIN airport_distances t2 ON t1.airport_distances_id = t2.id
+    GROUP BY
+        t1.year,
+        t1.quarter,
+        t2.from_airport
+), to_airport_information AS (
+    SELECT
+        t1.year            year,
+        t1.quarter         quarter,
+        t2.to_airport      airport,
+        SUM(t1.passengers) sum_passengers,
+        COUNT(*)           total_passengers,
+        SUM(t1.fare)       sum_fares,
+        COUNT(*)           total_fares
+    FROM
+             custom_airlines_trips t1
+        INNER JOIN airport_distances t2 ON t1.airport_distances_id = t2.id
+    GROUP BY
+        t1.year,
+        t1.quarter,
+        t2.to_airport
+), airport_level_trip_information AS (
+    SELECT
+        t1.year,
+        t1.quarter,
+        t1.airport,
+        sum(sum_passengers) sum_passengers,
+        sum(sum_fares) sum_fares,
+        sum(total_passengers) total_passengers,
+        sum(total_fares) total_fares
+    FROM
+        (
+            SELECT
+                *
+            FROM
+                from_airport_information
+            UNION
+            SELECT
+                *
+            FROM
+                to_airport_information
+        ) t1
+    GROUP BY
+        t1.year,
+        t1.quarter,
+        t1.airport
+), airport_level_feedback_statistics AS (
+    SELECT
+        t1.year                         year,
+        t1.quarter                      quarter,
+        t2.from_airport                 airport,
+        t4.airline                      airline,
+        SUM(
+            CASE t3.satisfaction
+                WHEN 'satisfied' THEN
+                    1
+                ELSE
+                    0
+            END
+        )                               total_satisfied,
+        SUM(
+            CASE t3.satisfaction
+                WHEN 'satisfied' THEN
+                    0
+                ELSE
+                    1
+            END
+        )                               total_dissatisfied,
+        COUNT(*)                        total_count,
+        SUM(inflight_wifi_service)      sum_inflight_wifi_service,
+        SUM(departure_delay_in_minutes) sum_departure_delay_in_minutes,
+        SUM(arrival_delay_in_minutes)   sum_arrival_delay_in_minutes,
+        SUM(ease_of_online_booking)     sum_ease_of_online_booking,
+        SUM(gate_location)              sum_gate_location,
+        SUM(food_and_drink)             sum_food_and_drink,
+        SUM(online_boarding)            sum_online_boarding,
+        SUM(seat_comfort)               sum_seat_comfort,
+        SUM(inflight_entertainment)     sum_inflight_entertainment,
+        SUM(on_board_service)           sum_on_board_service,
+        SUM(leg_room_service)           sum_leg_room_service,
+        SUM(baggage_handling)           sum_baggage_handling,
+        SUM(checkin_service)            sum_checkin_service,
+        SUM(inflight_service)           sum_inflight_service,
+        SUM(cleanliness)                sum_cleanliness
+    FROM
+             custom_airlines_trips t1
+        INNER JOIN airport_distances t2 ON t1.airport_distances_id = t2.id
+        INNER JOIN custom_feedbacks         t3 ON t1.trip_id = t3.trip_id
+        INNER JOIN custom_airlines          t4 ON t1.airline_id = t4.id
+    GROUP BY
+        t1.year,
+        t1.quarter,
+        t2.from_airport,
+        t4.airline
+) SELECT year,regexp_replace(airport, '(.+), (.+), (.+)', '\2') city,SUM(sum_passengers)/ SUM(total_passengers),SUM(sum_fares)/ SUM(total_fares) FROM airport_level_trip_information GROUP BY year,regexp_replace(airport, '(.+), (.+), (.+)', '\2') ORDER BY year,city%%__QUERY_DELIM__%%WITH date_classifier AS (
+    SELECT
+        CASE
+            WHEN length('1993') = 4  THEN
+                'yearly'
+            WHEN length('2024') = 8 THEN
+                'quarterly'
+            ELSE
+                'invalid'
+        END
+    FROM
+        dual
+), date_range_classifier AS (
+    SELECT
+        TO_NUMBER('1993') min_year,
+        1                     min_quarter,
+        TO_NUMBER('2024') max_year,
+        4                     max_quarter
+    FROM
+        dual
+    WHERE
+        'yearly' = (
+            SELECT
+                *
+            FROM
+                date_classifier
+        )
+    UNION
+    SELECT
+        (
+            SELECT
+                TO_NUMBER(regexp_substr('1993', '[^-]+', 1, 1)) AS string_parts
+            FROM
+                dual
+        ) min_year,
+        (
+            SELECT
+                TO_NUMBER(regexp_substr('1993', '[^-]+', 1, 2)) AS string_parts
+            FROM
+                dual
+        ) min_quarter,
+        (
+            SELECT
+                TO_NUMBER(regexp_substr('2024', '[^-]+', 1, 1)) AS string_parts
+            FROM
+                dual
+        ) max_year,
+        (
+            SELECT
+                TO_NUMBER(regexp_substr('2024', '[^-]+', 1, 2)) AS string_parts
+            FROM
+                dual
+        ) max_quarter
+    FROM
+        dual
+    WHERE
+        'quarterly' = (
+            SELECT
+                *
+            FROM
+                date_classifier
+        )
+    UNION
+    SELECT
+        1993 min_year,
+        1    min_quarter,
+        2024 max_year,
+        4    max_quarter
+    FROM
+        dual
+    WHERE
+        'invalid' = (
+            SELECT
+                *
+            FROM
+                date_classifier
+        )
+), custom_airlines_trips AS (
+    SELECT
+        *
+    FROM
+        airlines_trips
+    WHERE
+        ( ( year > (
+            SELECT
+                min_year
+            FROM
+                date_range_classifier
+        ) )
+          OR ( year = (
+                SELECT
+                    min_year
+                FROM
+                    date_range_classifier
+            )
+               AND quarter >= (
+            SELECT
+                min_quarter
+            FROM
+                date_range_classifier
+        ) ) )
+        AND ( ( year < (
+            SELECT
+                max_year
+            FROM
+                date_range_classifier
+        ) )
+              OR ( year = (
+                SELECT
+                    max_year
+                FROM
+                    date_range_classifier
+            )
+                   AND quarter <= (
+            SELECT
+                max_quarter
+            FROM
+                date_range_classifier
+        ) ) )
+), custom_airlines AS (
+    SELECT
+        *
+    FROM
+        airlines
+), custom_feedbacks AS (
+    SELECT
+        *
+    FROM
+        feedbacks
+), custom_feedback_metrics AS (
+    (
+        SELECT
+            (
+                CASE
+                    WHEN satisfaction = 'satisfied' THEN
+                        1
+                    ELSE
+                        0
+                END
+            )                               type,
+            COUNT(*)                        type_count,
+            SUM(COUNT(*)) OVER () total_count,
+            AVG(flight_distance)            avg_flight_distance,
+            AVG(inflight_wifi_service)      avg_inflight_wifi_service,
+            AVG(departure_delay_in_minutes) avg_departure_delay_in_minutes,
+            AVG(arrival_delay_in_minutes)   avg_arrival_delay_in_minutes,
+            AVG(ease_of_online_booking)     avg_ease_of_online_booking,
+            AVG(gate_location)              avg_gate_location,
+            AVG(food_and_drink)             avg_food_and_drink,
+            AVG(online_boarding)            avg_online_boarding,
+            AVG(seat_comfort)               avg_seat_comfort,
+            AVG(inflight_entertainment)     avg_inflight_entertainment,
+            AVG(on_board_service)           avg_on_board_service,
+            AVG(leg_room_service)           avg_leg_room_service,
+            AVG(baggage_handling)           avg_baggage_handling,
+            AVG(checkin_service)            avg_checkin_service,
+            AVG(inflight_service)           avg_inflight_service,
+            AVG(cleanliness)                avg_cleanliness
+        FROM
+            custom_feedbacks
+        GROUP BY
+            satisfaction
+    )
+    UNION
+    (
+        SELECT
+            - 1                             type,
+            COUNT(*)                        type_count,
+            SUM(COUNT(*)) OVER () total_count,
+            AVG(flight_distance)            avg_flight_distance,
+            AVG(inflight_wifi_service)      avg_inflight_wifi_service,
+            AVG(departure_delay_in_minutes) avg_departure_delay_in_minutes,
+            AVG(arrival_delay_in_minutes)   avg_arrival_delay_in_minutes,
+            AVG(ease_of_online_booking)     avg_ease_of_online_booking,
+            AVG(gate_location)              avg_gate_location,
+            AVG(food_and_drink)             avg_food_and_drink,
+            AVG(online_boarding)            avg_online_boarding,
+            AVG(seat_comfort)               avg_seat_comfort,
+            AVG(inflight_entertainment)     avg_inflight_entertainment,
+            AVG(on_board_service)           avg_on_board_service,
+            AVG(leg_room_service)           avg_leg_room_service,
+            AVG(baggage_handling)           avg_baggage_handling,
+            AVG(checkin_service)            avg_checkin_service,
+            AVG(inflight_service)           avg_inflight_service,
+            AVG(cleanliness)                avg_cleanliness
+        FROM
+            custom_feedbacks 
+        WHERE trip_id IN (SELECT trip_id FROM custom_airlines_trips)
+    )
+), from_airport_information AS (
+    SELECT
+        t1.year            year,
+        t1.quarter         quarter,
+        t2.from_airport    airport,
+        SUM(t1.passengers) sum_passengers,
+        COUNT(*)           total_passengers,
+        SUM(t1.fare)       sum_fares,
+        COUNT(*)           total_fares
+    FROM
+             custom_airlines_trips t1
+        INNER JOIN airport_distances t2 ON t1.airport_distances_id = t2.id
+    GROUP BY
+        t1.year,
+        t1.quarter,
+        t2.from_airport
+), to_airport_information AS (
+    SELECT
+        t1.year            year,
+        t1.quarter         quarter,
+        t2.to_airport      airport,
+        SUM(t1.passengers) sum_passengers,
+        COUNT(*)           total_passengers,
+        SUM(t1.fare)       sum_fares,
+        COUNT(*)           total_fares
+    FROM
+             custom_airlines_trips t1
+        INNER JOIN airport_distances t2 ON t1.airport_distances_id = t2.id
+    GROUP BY
+        t1.year,
+        t1.quarter,
+        t2.to_airport
+), airport_level_trip_information AS (
+    SELECT
+        t1.year,
+        t1.quarter,
+        t1.airport,
+        sum(sum_passengers) sum_passengers,
+        sum(sum_fares) sum_fares,
+        sum(total_passengers) total_passengers,
+        sum(total_fares) total_fares
+    FROM
+        (
+            SELECT
+                *
+            FROM
+                from_airport_information
+            UNION
+            SELECT
+                *
+            FROM
+                to_airport_information
+        ) t1
+    GROUP BY
+        t1.year,
+        t1.quarter,
+        t1.airport
+), airport_level_feedback_statistics AS (
+    SELECT
+        t1.year                         year,
+        t1.quarter                      quarter,
+        t2.from_airport                 airport,
+        t4.airline                      airline,
+        SUM(
+            CASE t3.satisfaction
+                WHEN 'satisfied' THEN
+                    1
+                ELSE
+                    0
+            END
+        )                               total_satisfied,
+        SUM(
+            CASE t3.satisfaction
+                WHEN 'satisfied' THEN
+                    0
+                ELSE
+                    1
+            END
+        )                               total_dissatisfied,
+        COUNT(*)                        total_count,
+        SUM(inflight_wifi_service)      sum_inflight_wifi_service,
+        SUM(departure_delay_in_minutes) sum_departure_delay_in_minutes,
+        SUM(arrival_delay_in_minutes)   sum_arrival_delay_in_minutes,
+        SUM(ease_of_online_booking)     sum_ease_of_online_booking,
+        SUM(gate_location)              sum_gate_location,
+        SUM(food_and_drink)             sum_food_and_drink,
+        SUM(online_boarding)            sum_online_boarding,
+        SUM(seat_comfort)               sum_seat_comfort,
+        SUM(inflight_entertainment)     sum_inflight_entertainment,
+        SUM(on_board_service)           sum_on_board_service,
+        SUM(leg_room_service)           sum_leg_room_service,
+        SUM(baggage_handling)           sum_baggage_handling,
+        SUM(checkin_service)            sum_checkin_service,
+        SUM(inflight_service)           sum_inflight_service,
+        SUM(cleanliness)                sum_cleanliness
+    FROM
+             custom_airlines_trips t1
+        INNER JOIN airport_distances t2 ON t1.airport_distances_id = t2.id
+        INNER JOIN custom_feedbacks         t3 ON t1.trip_id = t3.trip_id
+        INNER JOIN custom_airlines          t4 ON t1.airline_id = t4.id
+    GROUP BY
+        t1.year,
+        t1.quarter,
+        t2.from_airport,
+        t4.airline
+) SELECT year,airline,COUNT(*) FROM airport_level_feedback_statistics GROUP BY year,airline ORDER BY year,airline%%__QUERY_DELIM__%%WITH date_classifier AS (
+    SELECT
+        CASE
+            WHEN length('1993') = 4  THEN
+                'yearly'
+            WHEN length('2024') = 8 THEN
+                'quarterly'
+            ELSE
+                'invalid'
+        END
+    FROM
+        dual
+), date_range_classifier AS (
+    SELECT
+        TO_NUMBER('1993') min_year,
+        1                     min_quarter,
+        TO_NUMBER('2024') max_year,
+        4                     max_quarter
+    FROM
+        dual
+    WHERE
+        'yearly' = (
+            SELECT
+                *
+            FROM
+                date_classifier
+        )
+    UNION
+    SELECT
+        (
+            SELECT
+                TO_NUMBER(regexp_substr('1993', '[^-]+', 1, 1)) AS string_parts
+            FROM
+                dual
+        ) min_year,
+        (
+            SELECT
+                TO_NUMBER(regexp_substr('1993', '[^-]+', 1, 2)) AS string_parts
+            FROM
+                dual
+        ) min_quarter,
+        (
+            SELECT
+                TO_NUMBER(regexp_substr('2024', '[^-]+', 1, 1)) AS string_parts
+            FROM
+                dual
+        ) max_year,
+        (
+            SELECT
+                TO_NUMBER(regexp_substr('2024', '[^-]+', 1, 2)) AS string_parts
+            FROM
+                dual
+        ) max_quarter
+    FROM
+        dual
+    WHERE
+        'quarterly' = (
+            SELECT
+                *
+            FROM
+                date_classifier
+        )
+    UNION
+    SELECT
+        1993 min_year,
+        1    min_quarter,
+        2024 max_year,
+        4    max_quarter
+    FROM
+        dual
+    WHERE
+        'invalid' = (
+            SELECT
+                *
+            FROM
+                date_classifier
+        )
+), custom_airlines_trips AS (
+    SELECT
+        *
+    FROM
+        airlines_trips
+    WHERE
+        ( ( year > (
+            SELECT
+                min_year
+            FROM
+                date_range_classifier
+        ) )
+          OR ( year = (
+                SELECT
+                    min_year
+                FROM
+                    date_range_classifier
+            )
+               AND quarter >= (
+            SELECT
+                min_quarter
+            FROM
+                date_range_classifier
+        ) ) )
+        AND ( ( year < (
+            SELECT
+                max_year
+            FROM
+                date_range_classifier
+        ) )
+              OR ( year = (
+                SELECT
+                    max_year
+                FROM
+                    date_range_classifier
+            )
+                   AND quarter <= (
+            SELECT
+                max_quarter
+            FROM
+                date_range_classifier
+        ) ) )
+), custom_airlines AS (
+    SELECT
+        *
+    FROM
+        airlines
+), custom_feedbacks AS (
+    SELECT
+        *
+    FROM
+        feedbacks
+), custom_feedback_metrics AS (
+    (
+        SELECT
+            (
+                CASE
+                    WHEN satisfaction = 'satisfied' THEN
+                        1
+                    ELSE
+                        0
+                END
+            )                               type,
+            COUNT(*)                        type_count,
+            SUM(COUNT(*)) OVER () total_count,
+            AVG(flight_distance)            avg_flight_distance,
+            AVG(inflight_wifi_service)      avg_inflight_wifi_service,
+            AVG(departure_delay_in_minutes) avg_departure_delay_in_minutes,
+            AVG(arrival_delay_in_minutes)   avg_arrival_delay_in_minutes,
+            AVG(ease_of_online_booking)     avg_ease_of_online_booking,
+            AVG(gate_location)              avg_gate_location,
+            AVG(food_and_drink)             avg_food_and_drink,
+            AVG(online_boarding)            avg_online_boarding,
+            AVG(seat_comfort)               avg_seat_comfort,
+            AVG(inflight_entertainment)     avg_inflight_entertainment,
+            AVG(on_board_service)           avg_on_board_service,
+            AVG(leg_room_service)           avg_leg_room_service,
+            AVG(baggage_handling)           avg_baggage_handling,
+            AVG(checkin_service)            avg_checkin_service,
+            AVG(inflight_service)           avg_inflight_service,
+            AVG(cleanliness)                avg_cleanliness
+        FROM
+            custom_feedbacks
+        GROUP BY
+            satisfaction
+    )
+    UNION
+    (
+        SELECT
+            - 1                             type,
+            COUNT(*)                        type_count,
+            SUM(COUNT(*)) OVER () total_count,
+            AVG(flight_distance)            avg_flight_distance,
+            AVG(inflight_wifi_service)      avg_inflight_wifi_service,
+            AVG(departure_delay_in_minutes) avg_departure_delay_in_minutes,
+            AVG(arrival_delay_in_minutes)   avg_arrival_delay_in_minutes,
+            AVG(ease_of_online_booking)     avg_ease_of_online_booking,
+            AVG(gate_location)              avg_gate_location,
+            AVG(food_and_drink)             avg_food_and_drink,
+            AVG(online_boarding)            avg_online_boarding,
+            AVG(seat_comfort)               avg_seat_comfort,
+            AVG(inflight_entertainment)     avg_inflight_entertainment,
+            AVG(on_board_service)           avg_on_board_service,
+            AVG(leg_room_service)           avg_leg_room_service,
+            AVG(baggage_handling)           avg_baggage_handling,
+            AVG(checkin_service)            avg_checkin_service,
+            AVG(inflight_service)           avg_inflight_service,
+            AVG(cleanliness)                avg_cleanliness
+        FROM
+            custom_feedbacks 
+        WHERE trip_id IN (SELECT trip_id FROM custom_airlines_trips)
+    )
+), from_airport_information AS (
+    SELECT
+        t1.year            year,
+        t1.quarter         quarter,
+        t2.from_airport    airport,
+        SUM(t1.passengers) sum_passengers,
+        COUNT(*)           total_passengers,
+        SUM(t1.fare)       sum_fares,
+        COUNT(*)           total_fares
+    FROM
+             custom_airlines_trips t1
+        INNER JOIN airport_distances t2 ON t1.airport_distances_id = t2.id
+    GROUP BY
+        t1.year,
+        t1.quarter,
+        t2.from_airport
+), to_airport_information AS (
+    SELECT
+        t1.year            year,
+        t1.quarter         quarter,
+        t2.to_airport      airport,
+        SUM(t1.passengers) sum_passengers,
+        COUNT(*)           total_passengers,
+        SUM(t1.fare)       sum_fares,
+        COUNT(*)           total_fares
+    FROM
+             custom_airlines_trips t1
+        INNER JOIN airport_distances t2 ON t1.airport_distances_id = t2.id
+    GROUP BY
+        t1.year,
+        t1.quarter,
+        t2.to_airport
+), airport_level_trip_information AS (
+    SELECT
+        t1.year,
+        t1.quarter,
+        t1.airport,
+        sum(sum_passengers) sum_passengers,
+        sum(sum_fares) sum_fares,
+        sum(total_passengers) total_passengers,
+        sum(total_fares) total_fares
+    FROM
+        (
+            SELECT
+                *
+            FROM
+                from_airport_information
+            UNION
+            SELECT
+                *
+            FROM
+                to_airport_information
+        ) t1
+    GROUP BY
+        t1.year,
+        t1.quarter,
+        t1.airport
+), airport_level_feedback_statistics AS (
+    SELECT
+        t1.year                         year,
+        t1.quarter                      quarter,
+        t2.from_airport                 airport,
+        t4.airline                      airline,
+        SUM(
+            CASE t3.satisfaction
+                WHEN 'satisfied' THEN
+                    1
+                ELSE
+                    0
+            END
+        )                               total_satisfied,
+        SUM(
+            CASE t3.satisfaction
+                WHEN 'satisfied' THEN
+                    0
+                ELSE
+                    1
+            END
+        )                               total_dissatisfied,
+        COUNT(*)                        total_count,
+        SUM(inflight_wifi_service)      sum_inflight_wifi_service,
+        SUM(departure_delay_in_minutes) sum_departure_delay_in_minutes,
+        SUM(arrival_delay_in_minutes)   sum_arrival_delay_in_minutes,
+        SUM(ease_of_online_booking)     sum_ease_of_online_booking,
+        SUM(gate_location)              sum_gate_location,
+        SUM(food_and_drink)             sum_food_and_drink,
+        SUM(online_boarding)            sum_online_boarding,
+        SUM(seat_comfort)               sum_seat_comfort,
+        SUM(inflight_entertainment)     sum_inflight_entertainment,
+        SUM(on_board_service)           sum_on_board_service,
+        SUM(leg_room_service)           sum_leg_room_service,
+        SUM(baggage_handling)           sum_baggage_handling,
+        SUM(checkin_service)            sum_checkin_service,
+        SUM(inflight_service)           sum_inflight_service,
+        SUM(cleanliness)                sum_cleanliness
+    FROM
+             custom_airlines_trips t1
+        INNER JOIN airport_distances t2 ON t1.airport_distances_id = t2.id
+        INNER JOIN custom_feedbacks         t3 ON t1.trip_id = t3.trip_id
+        INNER JOIN custom_airlines          t4 ON t1.airline_id = t4.id
+    GROUP BY
+        t1.year,
+        t1.quarter,
+        t2.from_airport,
+        t4.airline
+) SELECT year,regexp_replace(airport, '(.+), (.+), (.+)', '\2') city,ROUND(SUM(total_satisfied)/SUM(total_count), 2) value FROM airport_level_feedback_statistics GROUP BY year,regexp_replace(airport, '(.+), (.+), (.+)', '\2') ORDER BY year,city%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from airlines_trips t1 inner join feedbacks t2 on t1.trip_id = t2.trip_id group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from airlines_trips group by year order by year%%__QUERY_DELIM__%%SELECT table_name, num_rows from user_tables
+>>>>>>> Stashed changes
