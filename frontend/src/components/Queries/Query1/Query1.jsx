@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import constants from "../../../config/config";
 
 const Query1 = () => {
-  const [holidayList, setHolidayList] = useState([]);
+  const [delayType, setDelayType] = useState([]);
   const [airportList, setAirportList] = useState([]);
   const [yearList, setYearList] = useState([]);
   const [stateList, setStateList] = useState([]);
@@ -29,10 +29,16 @@ const Query1 = () => {
 
   const fetchData = async () => {
     const response = await axios.get(
-      `${constants.BACKEND_URL}/trend_query4/filter_data/`
+      `${constants.BACKEND_URL}/trend_query1/filter_data/`
     );
 
-    setHolidayList(formatData(response.data.holidays));
+    setDelayType([
+      "Arrival Delay",
+      "Weather Delay",
+      "Security Delay",
+      "Late Aircraft Delay",
+      "National Airspace System Delay(NAS)",
+    ]);
     setAirportList(formatData(response.data.airports));
     setStateList(formatData(response.data.states));
     setYearList(formatData(response.data.years));
@@ -56,45 +62,62 @@ const Query1 = () => {
   };
 
   const handleSubmit = async () => {
+    const mapObj = {
+      "Arrival Delay": "arr_delay",
+      "Weather Delay": "weather_delay",
+      "Security Delay": "security_delay",
+      "Late Aircraft Delay": "late_aircraft_delay",
+      "National Airspace System Delay(NAS)": "nas_delay",
+    };
+    const revObj = {
+      arr_delay: "Arrival Delay",
+      weather_delay: "Weather Delay",
+      security_delay: "Security Delay",
+      late_aircraft_delay: "Late Aircraft Delay",
+      nas_delay: "National Airspace System Delay(NAS)",
+    };
+    let obj = [];
+    for (let i = 0; i < selectedStates.delayCauseVal.length; i++) {
+      obj.push(mapObj[selectedStates.delayCauseVal[i]]);
+    }
+    const payload = {
+      delayTypeVal: obj,
+      airportVal: selectedStates.airportVal,
+      stateVal: selectedStates.stateVal,
+    };
     const response = await axios.post(
-      `${constants.BACKEND_URL}/trend_query4/`,
-      selectedStates
+      `${constants.BACKEND_URL}/trend_query1/`,
+      payload
     );
 
     const data = response.data;
+    console.log(data);
     let xArr = [];
     let yArr = [];
 
-    setXAxisData(xArr);
+    setXAxisData(yearList);
     const uniqueVals = [];
     for (let i = 0; i < data.length; i++) {
-      if (uniqueVals.indexOf(data[i][2]) === -1) {
-        uniqueVals.push(data[i][2]);
+      if (uniqueVals.indexOf(data[i][1]) === -1) {
+        uniqueVals.push(data[i][1]);
       }
     }
     for (let i = 0; i < uniqueVals.length; i++) {
       yArr.push([]);
     }
-    let val = uniqueVals[0];
     for (let i = 0; i < data.length; i++) {
-      if (data[i][2] === val) {
-        xArr.push(data[i][1]);
-      }
-    }
-    for (let i = 0; i < data.length; i++) {
-      let ind = uniqueVals.indexOf(data[i][2]);
-      if (yArr[ind].length !== xArr.length) yArr[ind].push(data[i][0]);
+      let ind = uniqueVals.indexOf(data[i][1]);
+      yArr[ind].push(data[i][2]);
     }
     let series = [];
     for (let i = 0; i < yArr.length; i++) {
       series.push({
         id: uniqueVals[i],
         data: yArr[i],
-        area: true,
-        stack: "total",
         label: uniqueVals[i],
       });
     }
+    console.log(yArr);
     setYAxisData([...series]);
   };
 
@@ -158,9 +181,9 @@ const Query1 = () => {
                     </Box>
                   )}
                 >
-                  {holidayList.map((holiday) => (
-                    <MenuItem value={holiday} key={holiday}>
-                      {holiday}
+                  {delayType.map((delay) => (
+                    <MenuItem value={delay} key={delay}>
+                      {delay}
                     </MenuItem>
                   ))}
                 </Select>
@@ -257,11 +280,9 @@ const Query1 = () => {
                   xAxis={[
                     {
                       data: xAxisData,
-                      valueFormatter: (v) => v.toString(),
-                      id: "years",
+                      scaleType: "band",
                     },
                   ]}
-                  yAxis={[{ id: "delay" }]}
                   series={yAxisData}
                   width={800}
                   height={500}
