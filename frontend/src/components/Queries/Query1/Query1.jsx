@@ -91,7 +91,6 @@ const Query1 = () => {
     );
 
     const data = response.data;
-    console.log(data);
     let xArr = [];
     let yArr = [];
 
@@ -117,7 +116,6 @@ const Query1 = () => {
         label: uniqueVals[i],
       });
     }
-    console.log(yArr);
     setYAxisData([...series]);
   };
 
