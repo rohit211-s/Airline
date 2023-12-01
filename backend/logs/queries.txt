@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 SELECT year, count(*) total_trips from kondas.airlines_trips t1 inner join kondas.feedbacks t2 on t1.trip_id = t2.trip_id group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from kondas.airlines_trips group by year order by year%%__QUERY_DELIM__%%WITH date_classifier AS (
     SELECT
         CASE
@@ -1219,3 +1220,643 @@ SELECT year, count(*) total_trips from kondas.airlines_trips t1 inner join konda
         t2.from_airport,
         t4.airline
 ) SELECT year,regexp_replace(airport, '(.+), (.+), (.+)', '\2') city,ROUND(SUM(total_satisfied)/SUM(total_count), 2) value FROM airport_level_feedback_statistics GROUP BY year,regexp_replace(airport, '(.+), (.+), (.+)', '\2') ORDER BY year,city%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from airlines_trips t1 inner join feedbacks t2 on t1.trip_id = t2.trip_id group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from airlines_trips group by year order by year%%__QUERY_DELIM__%%SELECT table_name, num_rows from user_tables%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from airlines_trips t1 inner join feedbacks t2 on t1.trip_id = t2.trip_id group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from airlines_trips group by year order by year%%__QUERY_DELIM__%%SELECT table_name, num_rows from user_tables%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from airlines_trips t1 inner join feedbacks t2 on t1.trip_id = t2.trip_id group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from airlines_trips group by year order by year
+=======
+SELECT year, count(*) total_trips from KONDAS.airlines_trips t1 inner join KONDAS.feedbacks t2 on t1.trip_id = t2.trip_id group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips t1 inner join KONDAS.feedbacks t2 on t1.trip_id = t2.trip_id group by year order by year%%__QUERY_DELIM__%%SELECT year, count(*) total_trips from KONDAS.airlines_trips group by year order by year%%__QUERY_DELIM__%%
+WITH DelayData AS (
+    SELECT 
+        t2.DELAY_ID, 
+        t2.YEAR, 
+        t2.MONTH, 
+        t2.CARRIER_NAME, 
+        t1.AIRPORT,
+        t1.CITY, 
+        t1.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.AIRPORTS t1
+        INNER JOIN KONDAS.ASSOCIATED_WITH t3 ON t1.IATA_CODE = t3.AIRPORT_IATA_CODE
+        INNER JOIN KONDAS.AIRLINES_DELAY t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+JoinedData AS (
+    SELECT 
+        t2.YEAR,
+        CASE 
+            WHEN t2.MONTH BETWEEN 1 AND 3 THEN 'Q1'
+            WHEN t2.MONTH BETWEEN 4 AND 6 THEN 'Q2'
+            WHEN t2.MONTH BETWEEN 7 AND 9 THEN 'Q3'
+            WHEN t2.MONTH BETWEEN 10 AND 12 THEN 'Q4'
+        END AS QUARTER,
+        t2.AIRPORT,
+        t2.CITY,
+        t2.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.DISASTERS t1
+        INNER JOIN KONDAS.CAUSES t3 ON t1.ID = t3.DISASTER_ID
+        INNER JOIN DelayData t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+AggregatedData AS (
+    SELECT 
+        jd.STATE,
+        jd.YEAR,
+        jd.QUARTER,
+        AVG(jd.WEATHER_CT) AS AvgWeatherImpact
+    FROM 
+        JoinedData jd
+    GROUP BY 
+        jd.STATE, jd.YEAR, jd.QUARTER
+    HAVING
+    jd.STATE = :fromState AND
+    jd.YEAR BETWEEN :startYear AND :endYear AND
+    jd.QUARTER BETWEEN :startQuarter AND :endQuarter
+)
+SELECT 
+    ad.STATE,
+    ad.YEAR,
+    ad.QUARTER, 
+    ad.AvgWeatherImpact
+FROM 
+    AggregatedData ad
+ORDER BY 
+    ad.STATE, ad.YEAR, ad.QUARTER
+%%__QUERY_DELIM__%%
+WITH DelayData AS (
+    SELECT 
+        t2.DELAY_ID, 
+        t2.YEAR, 
+        t2.MONTH, 
+        t2.CARRIER_NAME, 
+        t1.AIRPORT,
+        t1.CITY, 
+        t1.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.AIRPORTS t1
+        INNER JOIN KONDAS.ASSOCIATED_WITH t3 ON t1.IATA_CODE = t3.AIRPORT_IATA_CODE
+        INNER JOIN KONDAS.AIRLINES_DELAY t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+JoinedData AS (
+    SELECT 
+        t2.YEAR,
+        CASE 
+            WHEN t2.MONTH BETWEEN 1 AND 3 THEN 'Q1'
+            WHEN t2.MONTH BETWEEN 4 AND 6 THEN 'Q2'
+            WHEN t2.MONTH BETWEEN 7 AND 9 THEN 'Q3'
+            WHEN t2.MONTH BETWEEN 10 AND 12 THEN 'Q4'
+        END AS QUARTER,
+        t2.AIRPORT,
+        t2.CITY,
+        t2.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.DISASTERS t1
+        INNER JOIN KONDAS.CAUSES t3 ON t1.ID = t3.DISASTER_ID
+        INNER JOIN DelayData t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+AggregatedData AS (
+    SELECT 
+        jd.STATE,
+        jd.YEAR,
+        jd.QUARTER,
+        AVG(jd.WEATHER_CT) AS AvgWeatherImpact
+    FROM 
+        JoinedData jd
+    GROUP BY 
+        jd.STATE, jd.YEAR, jd.QUARTER
+    HAVING
+    jd.STATE = :fromState AND
+    jd.YEAR BETWEEN :startYear AND :endYear AND
+    jd.QUARTER BETWEEN :startQuarter AND :endQuarter
+)
+SELECT 
+    ad.STATE,
+    ad.YEAR,
+    ad.QUARTER, 
+    ad.AvgWeatherImpact
+FROM 
+    AggregatedData ad
+ORDER BY 
+    ad.STATE, ad.YEAR, ad.QUARTER
+%%__QUERY_DELIM__%%
+WITH DelayData AS (
+    SELECT 
+        t2.DELAY_ID, 
+        t2.YEAR, 
+        t2.MONTH, 
+        t2.CARRIER_NAME, 
+        t1.AIRPORT,
+        t1.CITY, 
+        t1.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.AIRPORTS t1
+        INNER JOIN KONDAS.ASSOCIATED_WITH t3 ON t1.IATA_CODE = t3.AIRPORT_IATA_CODE
+        INNER JOIN KONDAS.AIRLINES_DELAY t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+JoinedData AS (
+    SELECT 
+        t2.YEAR,
+        CASE 
+            WHEN t2.MONTH BETWEEN 1 AND 3 THEN 'Q1'
+            WHEN t2.MONTH BETWEEN 4 AND 6 THEN 'Q2'
+            WHEN t2.MONTH BETWEEN 7 AND 9 THEN 'Q3'
+            WHEN t2.MONTH BETWEEN 10 AND 12 THEN 'Q4'
+        END AS QUARTER,
+        t2.AIRPORT,
+        t2.CITY,
+        t2.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.DISASTERS t1
+        INNER JOIN KONDAS.CAUSES t3 ON t1.ID = t3.DISASTER_ID
+        INNER JOIN DelayData t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+AggregatedData AS (
+    SELECT 
+        jd.STATE,
+        jd.YEAR,
+        jd.QUARTER,
+        AVG(jd.WEATHER_CT) AS AvgWeatherImpact
+    FROM 
+        JoinedData jd
+    GROUP BY 
+        jd.STATE, jd.YEAR, jd.QUARTER
+    HAVING
+    jd.STATE = :fromState AND
+    jd.YEAR BETWEEN :startYear AND :endYear AND
+    jd.QUARTER BETWEEN :startQuarter AND :endQuarter
+)
+SELECT 
+    ad.STATE,
+    ad.YEAR,
+    ad.QUARTER, 
+    ad.AvgWeatherImpact
+FROM 
+    AggregatedData ad
+ORDER BY 
+    ad.STATE, ad.YEAR, ad.QUARTER
+%%__QUERY_DELIM__%%
+WITH DelayData AS (
+    SELECT 
+        t2.DELAY_ID, 
+        t2.YEAR, 
+        t2.MONTH, 
+        t2.CARRIER_NAME, 
+        t1.AIRPORT,
+        t1.CITY, 
+        t1.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.AIRPORTS t1
+        INNER JOIN KONDAS.ASSOCIATED_WITH t3 ON t1.IATA_CODE = t3.AIRPORT_IATA_CODE
+        INNER JOIN KONDAS.AIRLINES_DELAY t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+JoinedData AS (
+    SELECT 
+        t2.YEAR,
+        CASE 
+            WHEN t2.MONTH BETWEEN 1 AND 3 THEN 'Q1'
+            WHEN t2.MONTH BETWEEN 4 AND 6 THEN 'Q2'
+            WHEN t2.MONTH BETWEEN 7 AND 9 THEN 'Q3'
+            WHEN t2.MONTH BETWEEN 10 AND 12 THEN 'Q4'
+        END AS QUARTER,
+        t2.AIRPORT,
+        t2.CITY,
+        t2.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.DISASTERS t1
+        INNER JOIN KONDAS.CAUSES t3 ON t1.ID = t3.DISASTER_ID
+        INNER JOIN DelayData t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+AggregatedData AS (
+    SELECT 
+        jd.STATE,
+        jd.YEAR,
+        jd.QUARTER,
+        AVG(jd.WEATHER_CT) AS AvgWeatherImpact
+    FROM 
+        JoinedData jd
+    GROUP BY 
+        jd.STATE, jd.YEAR, jd.QUARTER
+    HAVING
+    jd.STATE = :fromState AND
+    jd.YEAR BETWEEN :startYear AND :endYear AND
+    jd.QUARTER BETWEEN :startQuarter AND :endQuarter
+)
+SELECT 
+    ad.STATE,
+    ad.YEAR,
+    ad.QUARTER, 
+    ad.AvgWeatherImpact
+FROM 
+    AggregatedData ad
+ORDER BY 
+    ad.STATE, ad.YEAR, ad.QUARTER
+%%__QUERY_DELIM__%%
+WITH DelayData AS (
+    SELECT 
+        t2.DELAY_ID, 
+        t2.YEAR, 
+        t2.MONTH, 
+        t2.CARRIER_NAME, 
+        t1.AIRPORT,
+        t1.CITY, 
+        t1.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.AIRPORTS t1
+        INNER JOIN KONDAS.ASSOCIATED_WITH t3 ON t1.IATA_CODE = t3.AIRPORT_IATA_CODE
+        INNER JOIN KONDAS.AIRLINES_DELAY t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+JoinedData AS (
+    SELECT 
+        t2.YEAR,
+        CASE 
+            WHEN t2.MONTH BETWEEN 1 AND 3 THEN 'Q1'
+            WHEN t2.MONTH BETWEEN 4 AND 6 THEN 'Q2'
+            WHEN t2.MONTH BETWEEN 7 AND 9 THEN 'Q3'
+            WHEN t2.MONTH BETWEEN 10 AND 12 THEN 'Q4'
+        END AS QUARTER,
+        t2.AIRPORT,
+        t2.CITY,
+        t2.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.DISASTERS t1
+        INNER JOIN KONDAS.CAUSES t3 ON t1.ID = t3.DISASTER_ID
+        INNER JOIN DelayData t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+AggregatedData AS (
+    SELECT 
+        jd.STATE,
+        jd.YEAR,
+        jd.QUARTER,
+        AVG(jd.WEATHER_CT) AS AvgWeatherImpact
+    FROM 
+        JoinedData jd
+    GROUP BY 
+        jd.STATE, jd.YEAR, jd.QUARTER
+    HAVING
+    jd.STATE = :fromState AND
+    jd.YEAR BETWEEN :startYear AND :endYear AND
+    jd.QUARTER BETWEEN :startQuarter AND :endQuarter
+)
+SELECT 
+    ad.STATE,
+    ad.YEAR,
+    ad.QUARTER, 
+    ad.AvgWeatherImpact
+FROM 
+    AggregatedData ad
+ORDER BY 
+    ad.STATE, ad.YEAR, ad.QUARTER
+%%__QUERY_DELIM__%%
+WITH DelayData AS (
+    SELECT 
+        t2.DELAY_ID, 
+        t2.YEAR, 
+        t2.MONTH, 
+        t2.CARRIER_NAME, 
+        t1.AIRPORT,
+        t1.CITY, 
+        t1.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.AIRPORTS t1
+        INNER JOIN KONDAS.ASSOCIATED_WITH t3 ON t1.IATA_CODE = t3.AIRPORT_IATA_CODE
+        INNER JOIN KONDAS.AIRLINES_DELAY t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+JoinedData AS (
+    SELECT 
+        t2.YEAR,
+        CASE 
+            WHEN t2.MONTH BETWEEN 1 AND 3 THEN 'Q1'
+            WHEN t2.MONTH BETWEEN 4 AND 6 THEN 'Q2'
+            WHEN t2.MONTH BETWEEN 7 AND 9 THEN 'Q3'
+            WHEN t2.MONTH BETWEEN 10 AND 12 THEN 'Q4'
+        END AS QUARTER,
+        t2.AIRPORT,
+        t2.CITY,
+        t2.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.DISASTERS t1
+        INNER JOIN KONDAS.CAUSES t3 ON t1.ID = t3.DISASTER_ID
+        INNER JOIN DelayData t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+AggregatedData AS (
+    SELECT 
+        jd.STATE,
+        jd.YEAR,
+        jd.QUARTER,
+        AVG(jd.WEATHER_CT) AS AvgWeatherImpact
+    FROM 
+        JoinedData jd
+    GROUP BY 
+        jd.STATE, jd.YEAR, jd.QUARTER
+    HAVING
+    jd.STATE = :fromState AND
+    jd.YEAR BETWEEN :startYear AND :endYear AND
+    jd.QUARTER BETWEEN :startQuarter AND :endQuarter
+)
+SELECT 
+    ad.STATE,
+    ad.YEAR,
+    ad.QUARTER, 
+    ad.AvgWeatherImpact
+FROM 
+    AggregatedData ad
+ORDER BY 
+    ad.STATE, ad.YEAR, ad.QUARTER
+%%__QUERY_DELIM__%%
+WITH DelayData AS (
+    SELECT 
+        t2.DELAY_ID, 
+        t2.YEAR, 
+        t2.MONTH, 
+        t2.CARRIER_NAME, 
+        t1.AIRPORT,
+        t1.CITY, 
+        t1.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.AIRPORTS t1
+        INNER JOIN KONDAS.ASSOCIATED_WITH t3 ON t1.IATA_CODE = t3.AIRPORT_IATA_CODE
+        INNER JOIN KONDAS.AIRLINES_DELAY t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+JoinedData AS (
+    SELECT 
+        t2.YEAR,
+        CASE 
+            WHEN t2.MONTH BETWEEN 1 AND 3 THEN 'Q1'
+            WHEN t2.MONTH BETWEEN 4 AND 6 THEN 'Q2'
+            WHEN t2.MONTH BETWEEN 7 AND 9 THEN 'Q3'
+            WHEN t2.MONTH BETWEEN 10 AND 12 THEN 'Q4'
+        END AS QUARTER,
+        t2.AIRPORT,
+        t2.CITY,
+        t2.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.DISASTERS t1
+        INNER JOIN KONDAS.CAUSES t3 ON t1.ID = t3.DISASTER_ID
+        INNER JOIN DelayData t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+AggregatedData AS (
+    SELECT 
+        jd.STATE,
+        jd.YEAR,
+        jd.QUARTER,
+        AVG(jd.WEATHER_CT) AS AvgWeatherImpact
+    FROM 
+        JoinedData jd
+    GROUP BY 
+        jd.STATE, jd.YEAR, jd.QUARTER
+    HAVING
+    jd.STATE = :fromState AND
+    jd.YEAR BETWEEN :startYear AND :endYear AND
+    jd.QUARTER BETWEEN :startQuarter AND :endQuarter
+)
+SELECT 
+    ad.STATE,
+    ad.YEAR,
+    ad.QUARTER, 
+    ad.AvgWeatherImpact
+FROM 
+    AggregatedData ad
+ORDER BY 
+    ad.STATE, ad.YEAR, ad.QUARTER
+%%__QUERY_DELIM__%%
+WITH DelayData AS (
+    SELECT 
+        t2.DELAY_ID, 
+        t2.YEAR, 
+        t2.MONTH, 
+        t2.CARRIER_NAME, 
+        t1.AIRPORT,
+        t1.CITY, 
+        t1.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.AIRPORTS t1
+        INNER JOIN KONDAS.ASSOCIATED_WITH t3 ON t1.IATA_CODE = t3.AIRPORT_IATA_CODE
+        INNER JOIN KONDAS.AIRLINES_DELAY t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+JoinedData AS (
+    SELECT 
+        t2.YEAR,
+        CASE 
+            WHEN t2.MONTH BETWEEN 1 AND 3 THEN 'Q1'
+            WHEN t2.MONTH BETWEEN 4 AND 6 THEN 'Q2'
+            WHEN t2.MONTH BETWEEN 7 AND 9 THEN 'Q3'
+            WHEN t2.MONTH BETWEEN 10 AND 12 THEN 'Q4'
+        END AS QUARTER,
+        t2.AIRPORT,
+        t2.CITY,
+        t2.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.DISASTERS t1
+        INNER JOIN KONDAS.CAUSES t3 ON t1.ID = t3.DISASTER_ID
+        INNER JOIN DelayData t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+AggregatedData AS (
+    SELECT 
+        jd.STATE,
+        jd.YEAR,
+        jd.QUARTER,
+        AVG(jd.WEATHER_CT) AS AvgWeatherImpact
+    FROM 
+        JoinedData jd
+    GROUP BY 
+        jd.STATE, jd.YEAR, jd.QUARTER
+    HAVING
+    jd.STATE = :fromState AND
+    jd.YEAR BETWEEN :startYear AND :endYear AND
+    jd.QUARTER BETWEEN :startQuarter AND :endQuarter
+)
+SELECT 
+    ad.STATE,
+    ad.YEAR,
+    ad.QUARTER, 
+    ad.AvgWeatherImpact
+FROM 
+    AggregatedData ad
+ORDER BY 
+    ad.STATE, ad.YEAR, ad.QUARTER
+%%__QUERY_DELIM__%%
+WITH DelayData AS (
+    SELECT 
+        t2.DELAY_ID, 
+        t2.YEAR, 
+        t2.MONTH, 
+        t2.CARRIER_NAME, 
+        t1.AIRPORT,
+        t1.CITY, 
+        t1.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.AIRPORTS t1
+        INNER JOIN KONDAS.ASSOCIATED_WITH t3 ON t1.IATA_CODE = t3.AIRPORT_IATA_CODE
+        INNER JOIN KONDAS.AIRLINES_DELAY t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+JoinedData AS (
+    SELECT 
+        t2.YEAR,
+        CASE 
+            WHEN t2.MONTH BETWEEN 1 AND 3 THEN 'Q1'
+            WHEN t2.MONTH BETWEEN 4 AND 6 THEN 'Q2'
+            WHEN t2.MONTH BETWEEN 7 AND 9 THEN 'Q3'
+            WHEN t2.MONTH BETWEEN 10 AND 12 THEN 'Q4'
+        END AS QUARTER,
+        t2.AIRPORT,
+        t2.CITY,
+        t2.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.DISASTERS t1
+        INNER JOIN KONDAS.CAUSES t3 ON t1.ID = t3.DISASTER_ID
+        INNER JOIN DelayData t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+AggregatedData AS (
+    SELECT 
+        jd.STATE,
+        jd.YEAR,
+        jd.QUARTER,
+        AVG(jd.WEATHER_CT) AS AvgWeatherImpact
+    FROM 
+        JoinedData jd
+    GROUP BY 
+        jd.STATE, jd.YEAR, jd.QUARTER
+    HAVING
+    jd.STATE = :fromState AND
+    jd.YEAR BETWEEN :startYear AND :endYear AND
+    jd.QUARTER BETWEEN :startQuarter AND :endQuarter
+)
+SELECT 
+    ad.STATE,
+    ad.YEAR,
+    ad.QUARTER, 
+    ad.AvgWeatherImpact
+FROM 
+    AggregatedData ad
+ORDER BY 
+    ad.STATE, ad.YEAR, ad.QUARTER
+%%__QUERY_DELIM__%%
+WITH DelayData AS (
+    SELECT 
+        t2.DELAY_ID, 
+        t2.YEAR, 
+        t2.MONTH, 
+        t2.CARRIER_NAME, 
+        t1.AIRPORT,
+        t1.CITY, 
+        t1.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.AIRPORTS t1
+        INNER JOIN KONDAS.ASSOCIATED_WITH t3 ON t1.IATA_CODE = t3.AIRPORT_IATA_CODE
+        INNER JOIN KONDAS.AIRLINES_DELAY t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+JoinedData AS (
+    SELECT 
+        t2.YEAR,
+        CASE 
+            WHEN t2.MONTH BETWEEN 1 AND 3 THEN 'Q1'
+            WHEN t2.MONTH BETWEEN 4 AND 6 THEN 'Q2'
+            WHEN t2.MONTH BETWEEN 7 AND 9 THEN 'Q3'
+            WHEN t2.MONTH BETWEEN 10 AND 12 THEN 'Q4'
+        END AS QUARTER,
+        t2.AIRPORT,
+        t2.CITY,
+        t2.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.DISASTERS t1
+        INNER JOIN KONDAS.CAUSES t3 ON t1.ID = t3.DISASTER_ID
+        INNER JOIN DelayData t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+AggregatedData AS (
+    SELECT 
+        jd.STATE,
+        jd.YEAR,
+        jd.QUARTER,
+        AVG(jd.WEATHER_CT) AS AvgWeatherImpact
+    FROM 
+        JoinedData jd
+    GROUP BY 
+        jd.STATE, jd.YEAR, jd.QUARTER
+    HAVING
+    jd.STATE = :fromState AND
+    jd.YEAR BETWEEN :startYear AND :endYear AND
+    jd.QUARTER BETWEEN :startQuarter AND :endQuarter
+)
+SELECT 
+    ad.STATE,
+    ad.YEAR,
+    ad.QUARTER, 
+    ad.AvgWeatherImpact
+FROM 
+    AggregatedData ad
+ORDER BY 
+    ad.STATE, ad.YEAR, ad.QUARTER
+%%__QUERY_DELIM__%%
+WITH DelayData AS (
+    SELECT 
+        t2.DELAY_ID, 
+        t2.YEAR, 
+        t2.MONTH, 
+        t2.CARRIER_NAME, 
+        t1.AIRPORT,
+        t1.CITY, 
+        t1.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.AIRPORTS t1
+        INNER JOIN KONDAS.ASSOCIATED_WITH t3 ON t1.IATA_CODE = t3.AIRPORT_IATA_CODE
+        INNER JOIN KONDAS.AIRLINES_DELAY t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+JoinedData AS (
+    SELECT 
+        t2.YEAR,
+        CASE 
+            WHEN t2.MONTH BETWEEN 1 AND 3 THEN 'Q1'
+            WHEN t2.MONTH BETWEEN 4 AND 6 THEN 'Q2'
+            WHEN t2.MONTH BETWEEN 7 AND 9 THEN 'Q3'
+            WHEN t2.MONTH BETWEEN 10 AND 12 THEN 'Q4'
+        END AS QUARTER,
+        t2.AIRPORT,
+        t2.CITY,
+        t2.STATE,
+        t2.WEATHER_CT
+    FROM 
+        KONDAS.DISASTERS t1
+        INNER JOIN KONDAS.CAUSES t3 ON t1.ID = t3.DISASTER_ID
+        INNER JOIN DelayData t2 ON t3.DELAY_ID = t2.DELAY_ID
+),
+AggregatedData AS (
+    SELECT 
+        jd.STATE,
+        jd.YEAR,
+        jd.QUARTER,
+        AVG(jd.WEATHER_CT) AS AvgWeatherImpact
+    FROM 
+        JoinedData jd
+    GROUP BY 
+        jd.STATE, jd.YEAR, jd.QUARTER
+    HAVING
+    jd.STATE = :fromState AND
+    jd.YEAR BETWEEN :startYear AND :endYear AND
+    jd.QUARTER BETWEEN :startQuarter AND :endQuarter
+)
+SELECT 
+    ad.STATE,
+    ad.YEAR,
+    ad.QUARTER, 
+    ad.AvgWeatherImpact
+FROM 
+    AggregatedData ad
+ORDER BY 
+    ad.STATE, ad.YEAR, ad.QUARTER
+>>>>>>> f76e257d8bcf2e9db72575bf3289993c5d49ad0e

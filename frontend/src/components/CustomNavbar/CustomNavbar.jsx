@@ -12,24 +12,24 @@ const pages = [
     link: "/",
   },
   {
-    label: "Trend Query 1",
-    link: "/trendquery1",
-  },
-  {
     label: "Passenger Preferences Trends",
     link: "/trendquery2",
-  },
-  {
-    label: "Trend Query 3",
-    link: "/trendquery3",
   },
   {
     label: "Holiday Trends",
     link: "/trendquery4",
   },
   {
-    label: "Trend Query 5",
+    label: "Airline Fare Trends",
+    link: "/trendquery3",
+  },
+  {
+    label: "Weather Delay Trends",
     link: "/trendquery5",
+  },
+  {
+    label: "Covid19 Trends",
+    link: "/trendquery1",
   },
   {
     label: "Raw SQL Editor",
@@ -90,7 +90,7 @@ function CustomNavbar() {
                   fontWeight: "bold",
                   padding: "6px",
                   ":hover": {
-                    backgroundColor: "#10898d",
+                    backgroundColor: "black",
                   },
                 }}
               >

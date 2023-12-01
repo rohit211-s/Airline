@@ -9,7 +9,7 @@ import {
   OutlinedInput,
   Select,
 } from "@mui/material";
-import { LineChart } from "@mui/x-charts/LineChart";
+import { BarChart } from "@mui/x-charts";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import constants from "../../../config/config";
@@ -17,6 +17,7 @@ import constants from "../../../config/config";
 const Query1 = () => {
   const [holidayList, setHolidayList] = useState([]);
   const [airportList, setAirportList] = useState([]);
+  const [yearList, setYearList] = useState([]);
   const [stateList, setStateList] = useState([]);
   const [xAxisData, setXAxisData] = useState([]);
   const [yAxisData, setYAxisData] = useState([]);
@@ -34,6 +35,7 @@ const Query1 = () => {
     setHolidayList(formatData(response.data.holidays));
     setAirportList(formatData(response.data.airports));
     setStateList(formatData(response.data.states));
+    setYearList(formatData(response.data.years));
   };
 
   const formatData = (data) => {
@@ -251,7 +253,7 @@ const Query1 = () => {
                   boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
                 }}
               >
-                <LineChart
+                <BarChart
                   xAxis={[
                     {
                       data: xAxisData,
