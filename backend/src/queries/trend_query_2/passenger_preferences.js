@@ -137,8 +137,9 @@ const trendQuery2 = `WITH date_classifier AS (
                     ELSE
                         0
                 END
-            )                               satisfaction,
-            COUNT(*)                        satisfaction_count,
+            )                               type,
+            COUNT(*)                        type_count,
+            SUM(COUNT(*)) OVER () total_count,
             AVG(flight_distance)            avg_flight_distance,
             AVG(inflight_wifi_service)      avg_inflight_wifi_service,
             AVG(departure_delay_in_minutes) avg_departure_delay_in_minutes,
@@ -163,8 +164,9 @@ const trendQuery2 = `WITH date_classifier AS (
     UNION
     (
         SELECT
-            - 1                             satisfaction,
-            COUNT(*)                        satisfaction_count,
+            - 1                             type,
+            COUNT(*)                        type_count,
+            SUM(COUNT(*)) OVER () total_count,
             AVG(flight_distance)            avg_flight_distance,
             AVG(inflight_wifi_service)      avg_inflight_wifi_service,
             AVG(departure_delay_in_minutes) avg_departure_delay_in_minutes,
@@ -182,7 +184,8 @@ const trendQuery2 = `WITH date_classifier AS (
             AVG(inflight_service)           avg_inflight_service,
             AVG(cleanliness)                avg_cleanliness
         FROM
-            custom_feedbacks
+            custom_feedbacks 
+        WHERE trip_id IN (SELECT trip_id FROM custom_airlines_trips)
     )
 ), from_airport_information AS (
     SELECT
