@@ -63,7 +63,6 @@ router.post("/trend_query1", async (req, res) => {
   }
   obj.delayTypeVal = delayType;
   const trend_query1 = formatQuery(obj);
-  console.log(trend_query1);
   const dbConnection = await getConnection();
   const resp = await dbConnection.execute(trend_query1);
   res.status(200).send(resp.rows);

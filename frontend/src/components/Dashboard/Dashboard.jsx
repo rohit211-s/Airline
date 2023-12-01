@@ -72,7 +72,7 @@ const Dashboard = () => {
           >
             <Grid
               item
-              xs={6}
+              xs={7}
               sx={{
                 boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
                 borderRadius: 3,
@@ -129,7 +129,7 @@ const Dashboard = () => {
             </Grid>
             <Grid
               item
-              xs={6}
+              xs={5}
               sx={{
                 position: "relative",
                 left: 10,
