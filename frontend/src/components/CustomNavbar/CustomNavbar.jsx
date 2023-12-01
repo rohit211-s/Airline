@@ -90,9 +90,7 @@ function CustomNavbar() {
                   fontWeight: "bold",
                   padding: "6px",
                   ":hover": {
-                    backgroundColor: "black",
-                    color: "white",
-                    border: "0.5px solid white",
+                    backgroundColor: "#008080",
                   },
                 }}
               >

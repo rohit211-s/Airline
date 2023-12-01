@@ -1,6 +1,4 @@
-import axios from "axios";
-import { useEffect, useState } from "react";
-import constants from "../../config/config";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import {
   Box,
   Button,
@@ -10,9 +8,11 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { PieChart } from "@mui/x-charts/PieChart";
 import { BarChart } from "@mui/x-charts";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import { PieChart } from "@mui/x-charts/PieChart";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import constants from "../../config/config";
 
 const Dashboard = () => {
   // States
@@ -64,8 +64,20 @@ const Dashboard = () => {
     <>
       {Object.keys(response).length > 0 ? (
         <Box sx={{ flexGrow: 1 }}>
-          <Grid container spacing={2} padding={4}>
-            <Grid item xs={7} sx={{ boxShadow: 3, borderRadius: 3 }}>
+          <Grid
+            container
+            spacing={2}
+            padding={4}
+            sx={{ justifyContent: "space-around" }}
+          >
+            <Grid
+              item
+              xs={6}
+              sx={{
+                boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
+                borderRadius: 3,
+              }}
+            >
               <Typography>Database Level Information</Typography>
               <PieChart
                 colors={pieChartColors}
@@ -117,11 +129,11 @@ const Dashboard = () => {
             </Grid>
             <Grid
               item
-              xs={5}
+              xs={6}
               sx={{
                 position: "relative",
                 left: 10,
-                boxShadow: 3,
+                boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
                 borderRadius: 3,
               }}
             >
@@ -156,7 +168,7 @@ const Dashboard = () => {
               height={"500px"}
               sx={{
                 marginTop: 2,
-                boxShadow: 3,
+                boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
                 borderRadius: 3,
                 marginBottom: 2,
                 overflow: "scroll",
