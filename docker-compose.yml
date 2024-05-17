@@ -21,16 +21,30 @@ services:
       - ${AIRLINE_ANALYSIS_BACKEND_PORT}:4201
     depends_on:
       - react
+      - db
     env_file: .env
     environment:
-      AIRLINE_ANALYSIS_BACKEND_PORT: 4201
       AIRLINE_ANALYSIS_DATABASE_CONNECTION_STRING: "${AIRLINE_ANALYSIS_DATABASE_HOSTNAME}:${AIRLINE_ANALYSIS_DATABASE_PORT}/${AIRLINE_ANALYSIS_DATABASE_SERVICE_NAME}"
-    extra_hosts:
-      - "oracle.cise.ufl.edu:10.242.98.82"
+    
+  db:
+    container_name: airline_analysis_db
+    image: gvenzl/oracle-free:23.4-slim
+    ports:
+      - "1521:1521"  
+    environment:
+      ORACLE_PASSWORD: "${AIRLINE_ANALYSIS_DATABASE_PASSWORD}"
+      ORACLE_DATABASE: "${AIRLINE_ANALYSIS_DATABASE_NAME}"
+      APP_USER: "${AIRLINE_ANALYSIS_DATABASE_USER}"
+      APP_USER_PASSWORD: "${AIRLINE_ANALYSIS_DATABASE_PASSWORD}"
+    volumes:
+      # - ./database:/container-entrypoint-initdb.d
+      - ./database:/opt/oracle/oradata
+      - /opt/oracle/oradata
 
   nginx:
     depends_on:
       - react
+      - db
       - node
     restart: always
     build:
