@@ -1,5 +1,5 @@
 const constants = {
-  BACKEND_URL: "http://localhost:4201",
+  BACKEND_URL: import.meta.env.VITE_AIRLINE_ANALYSIS_BACKEND_URL,
   DASHBOARD_STATISTIS: "/dashboard_statistics",
   RAW_QUERY_PATH: "/raw_query",
   TREND_QUERY_2_PATH: "/trend_query_2",

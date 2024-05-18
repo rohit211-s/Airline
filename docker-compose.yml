@@ -4,6 +4,8 @@ services:
     container_name: airline_analysis_frontend
     build:
       context: ./frontend
+    environment:
+      - VITE_AIRLINE_ANALYSIS_BACKEND_URL=${AIRLINE_ANALYSIS_BACKEND_URL}
     volumes:
       - ./frontend:/app/frontend
       - /app/frontend/node_modules
